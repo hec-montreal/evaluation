@@ -19,10 +19,14 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
 
+import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.evaluation.logic.EvalSettings;
 import org.sakaiproject.evaluation.logic.model.EvalGroup;
 import org.sakaiproject.evaluation.model.EvalEvaluation;
 import org.sakaiproject.evaluation.utils.EvalUtils;
+import org.sakaiproject.exception.IdUnusedException;
+import org.sakaiproject.site.api.Site;
+import org.sakaiproject.site.cover.SiteService;
 
 import uk.org.ponder.messageutil.MessageLocator;
 import uk.org.ponder.rsf.components.UIContainer;
@@ -85,7 +89,19 @@ public class HumanDateRenderer {
         String groupTitle = "";
         String groupType = "";
         if (group != null) {
-            groupTitle = group.title;
+        	// ZCII-2385 : we must use the title property from the site rather than the actual title
+            try {
+            	String siteid = group.evalGroupId.substring(group.evalGroupId.lastIndexOf('/')+1);
+            	Site site = SiteService.getSite(siteid);
+            	ResourceProperties properties = site.getProperties();
+            	groupTitle = properties.getProperty("title");
+            } catch (IdUnusedException e) {
+            	// We'll use the group title rather than find it in the site properties. 
+            }
+        	
+            if (null == groupTitle || groupTitle.equals((""))) {
+            	groupTitle = group.title;
+            }
             groupType = group.type;
         }
         String title = messageLocator.getMessage("eval.display.title", new Object[] {evalTitle, groupTitle, evalState, evalTerm, groupType}) + " ";

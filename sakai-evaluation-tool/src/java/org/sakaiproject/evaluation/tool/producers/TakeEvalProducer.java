@@ -29,6 +29,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.evaluation.constant.EvalConstants;
 import org.sakaiproject.evaluation.logic.EvalAuthoringService;
 import org.sakaiproject.evaluation.logic.EvalCommonLogic;
@@ -57,6 +58,9 @@ import org.sakaiproject.evaluation.utils.TemplateItemDataList.DataTemplateItem;
 import org.sakaiproject.evaluation.utils.TemplateItemDataList.HierarchyNodeGroup;
 import org.sakaiproject.evaluation.utils.TemplateItemDataList.TemplateItemGroup;
 import org.sakaiproject.evaluation.utils.TemplateItemUtils;
+import org.sakaiproject.exception.IdUnusedException;
+import org.sakaiproject.site.api.Site;
+import org.sakaiproject.site.cover.SiteService;
 
 import uk.org.ponder.messageutil.MessageLocator;
 import uk.org.ponder.messageutil.TargettedMessage;
@@ -382,7 +386,25 @@ public class TakeEvalProducer extends EvalCommonProducer implements ViewParamsRe
                 EvalGroup evalGroup = commonLogic.makeEvalGroupObject( evalGroupId );
                 UIBranchContainer groupTitle = UIBranchContainer.make(tofill, "show-group-title:");
                 UIMessage.make(groupTitle, "group-title-header", "takeeval.group.title.header");	
-                UIOutput.make(groupTitle, "group-title", evalGroup.title );
+                
+                //ZCII-1755: Afficher le titre plutot que le code de cours
+                String title = "";
+
+                try {
+                	String siteid = (evalGroup.evalGroupId).substring((evalGroup.evalGroupId).lastIndexOf('/')+1);
+                	Site site = SiteService.getSite(siteid);
+                	ResourceProperties properties = site.getProperties();
+                	title = properties.getProperty("title");
+                } catch (IdUnusedException e) {
+                	title = evalGroup.title;
+                	log.debug("This course does not have a title property");;
+                }
+
+                if (title == "" || title == null)
+                	title = evalGroup.title;                       
+
+                UIOutput.make(groupTitle, "group-title", title );
+
                 if (log.isDebugEnabled()) log.debug("Begin render of eval: "+eval.getTitle()+" ("+evaluationId+"), group: "+groupTitle+" ("+evalGroupId+")");
 
                 // show instructions if not null
