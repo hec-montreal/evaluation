@@ -16,6 +16,7 @@ package org.sakaiproject.evaluation.tool.producers;
 
 import org.sakaiproject.evaluation.logic.EvalCommonLogic;
 import org.sakaiproject.evaluation.logic.EvalSettings;
+import org.sakaiproject.evaluation.tool.renderers.NavBarRenderer;
 
 import uk.org.ponder.rsf.components.UICommand;
 import uk.org.ponder.rsf.components.UIContainer;
@@ -33,7 +34,12 @@ public class AdministrateReportingProducer extends EvalCommonProducer {
     public void setCommonLogic(EvalCommonLogic commonLogic) {
         this.commonLogic = commonLogic;
     }
-    
+
+    private NavBarRenderer navBarRenderer;
+    public void setNavBarRenderer(NavBarRenderer navBarRenderer) {
+        this.navBarRenderer = navBarRenderer;
+    }
+
     public String getViewID() {
         return VIEW_ID;
     }
@@ -46,15 +52,9 @@ public class AdministrateReportingProducer extends EvalCommonProducer {
             // Security check and denial
             throw new SecurityException("Non-admin users may not access this page");
         }
-        
-        // Breadcrumbs
-        UIInternalLink.make(tofill, "summary-link", UIMessage.make("summary.page.title"),
-                new SimpleViewParameters(SummaryProducer.VIEW_ID));
-        UIInternalLink.make(tofill, "administrate-link", UIMessage.make("administrate.page.title"),
-                new SimpleViewParameters(AdministrateProducer.VIEW_ID));
 
-        UIMessage.make(tofill, "page-title", "controlreporting.breadcrumb.title");
-        
+        navBarRenderer.makeNavBar(tofill, NavBarRenderer.NAV_ELEMENT, this.getViewID());
+
         UIForm form = UIForm.make(tofill, "settings-form");
         
         // Allow CSV Export

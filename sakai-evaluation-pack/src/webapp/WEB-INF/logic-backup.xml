@@ -126,19 +126,18 @@
 
     <bean id="org.sakaiproject.evaluation.logic.scheduling.ExportEvaluationReportsJob"
       class="org.sakaiproject.evaluation.logic.scheduling.ExportEvaluationReportsImpl"
-      init-method="init">
+      init-method="init"
+      singleton="true">
       <property name="evaluationService"
         ref="org.sakaiproject.evaluation.logic.EvalEvaluationService" />
-      <property name="evalSettings" 
-        ref="org.sakaiproject.evaluation.logic.EvalSettings" />
-      <property name="externalLogic" 
-        ref="org.sakaiproject.evaluation.logic.externals.EvalExternalLogic" />
-      <property name="evaluationSetupService"
-        ref="org.sakaiproject.evaluation.logic.EvalEvaluationSetupService" />
       <property name="evalLockManager" 
         ref="org.sakaiproject.evaluation.logic.EvalLockManager" />
       <property name="serverConfigurationService"
         ref="org.sakaiproject.component.api.ServerConfigurationService" />
+      <property name="siteService"
+        ref="org.sakaiproject.site.api.SiteService" />
+      <property name="reportingPermissions"
+          ref="org.sakaiproject.evaluation.logic.ReportingPermissions" />
       <property name="sessionManager" 
         ref="org.sakaiproject.tool.api.SessionManager" />
     </bean>
@@ -147,7 +146,7 @@
     <!-- this is the helper that will register the above bean with the job scheduler -->
     <bean id="org.sakaiproject.api.app.scheduler.JobBeanWrapper.ExportEvaluationReportsJob"
       class="org.sakaiproject.component.app.scheduler.jobs.SpringConfigurableJobBeanWrapper"
-      init-method="init">
+      singleton="true" init-method="init">
       <property name="beanId">
         <value>org.sakaiproject.evaluation.logic.scheduling.ExportEvaluationReportsJob</value>
       </property>
@@ -166,13 +165,20 @@
             <property name="descriptionResourceKey" value="term.id.description"/>
             <property name="defaultValue" value=""/>
           </bean>
+          <bean class="org.sakaiproject.component.app.scheduler.jobs.SpringConfigurableJobProperty">
+            <property name="required" value="true"/>
+            <property name="labelResourceKey" value="merge.groups"/>
+            <property name="descriptionResourceKey" value="merge.groups.description"/>
+            <property name="defaultValue" value="true"/>
+          </bean>
         </set>
       </property>
     </bean>
 
     <bean id="org.sakaiproject.evaluation.logic.scheduling.DeleteEvaluationsJob"
       class="org.sakaiproject.evaluation.logic.scheduling.DeleteEvaluationsImpl"
-      init-method="init">
+      init-method="init"
+      singleton="true">
       <property name="evalSettings" 
         ref="org.sakaiproject.evaluation.logic.EvalSettings" />
       <property name="evaluationService"
@@ -190,7 +196,7 @@
     <!-- this is the helper that will register the above bean with the job scheduler -->
     <bean id="org.sakaiproject.api.app.scheduler.JobBeanWrapper.DeleteEvaluationsJob"
       class="org.sakaiproject.component.app.scheduler.jobs.SpringConfigurableJobBeanWrapper"
-      init-method="init">
+      singleton="true" init-method="init">
       <property name="beanId">
         <value>org.sakaiproject.evaluation.logic.scheduling.DeleteEvaluationsJob</value>
       </property>

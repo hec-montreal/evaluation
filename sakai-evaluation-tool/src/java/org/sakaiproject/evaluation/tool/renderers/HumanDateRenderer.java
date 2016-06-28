@@ -37,7 +37,7 @@ import uk.org.ponder.rsf.components.decorators.UIStyleDecorator;
 import uk.org.ponder.rsf.components.decorators.UITooltipDecorator;
 
 public class HumanDateRenderer {
-    private long MILLIS_PER_DAY = 24*60*60*1000;
+    private static final long MILLIS_PER_DAY = 24*60*60*1000;
     private DateFormat df;
     private DateFormat tf;
     private boolean useDateTime = false;
@@ -89,18 +89,18 @@ public class HumanDateRenderer {
         String groupTitle = "";
         String groupType = "";
         if (group != null) {
-        	// ZCII-2385 : we must use the title property from the site rather than the actual title
+            // ZCII-2385 : we must use the title property from the site rather than the actual title
             try {
-            	String siteid = group.evalGroupId.substring(group.evalGroupId.lastIndexOf('/')+1);
-            	Site site = SiteService.getSite(siteid);
-            	ResourceProperties properties = site.getProperties();
-            	groupTitle = properties.getProperty("title");
+                String siteid = group.evalGroupId.substring(group.evalGroupId.lastIndexOf('/')+1);
+                Site site = SiteService.getSite(siteid);
+                ResourceProperties properties = site.getProperties();
+                groupTitle = properties.getProperty("title");
             } catch (IdUnusedException e) {
-            	// We'll use the group title rather than find it in the site properties. 
+                // We'll use the group title rather than find it in the site properties. 
             }
-        	
+
             if (null == groupTitle || groupTitle.equals((""))) {
-            	groupTitle = group.title;
+                groupTitle = group.title;
             }
             groupType = group.type;
         }

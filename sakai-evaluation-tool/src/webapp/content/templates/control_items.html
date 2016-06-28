@@ -42,6 +42,7 @@
     <script type="text/javascript" language="JavaScript" src="../js/eval.template.loader.events.js"></script>
     <script type="text/javascript" language="JavaScript" src="../js/eval.template.myitems.loader.js"></script>
     <script type="text/javascript" language="JavaScript" src="../js/eval.template.data.js"></script>
+    <script type="text/javascript" src="/library/js/spinner.js"></script>
 
     <link href="../css/jquery/jquery-ui-1.8.all.css" type="text/css" rel="stylesheet" media="all" />
     <link href="../js/facebox/facebox.css" media="screen" rel="stylesheet" type="text/css" />
@@ -55,12 +56,12 @@
 
 		<ul class="breadCrumb">
 			<li><a rsf:id="summary-link" href="summary.html">Summary</a></li>
-			<li rsf:id="page-title"  class="lastCrumb">My Items</li>
-			<li style="float:right" class="lastCrumb"><a rsf:id="expert-items-link" href="control_expert_items.html"  class="addItem">Expert Items</a></li>
+			<li rsf:id="page-title" class="lastCrumbNoFloat">My Items</li>
+			<li class="lastCrumb"><a rsf:id="expert-items-link" href="control_expert_items.html"  class="addItem">Expert Items</a></li>
 		</ul>
 					
 		<div rsf:id="message-for:*" class="alertMessage">
-			<ul style="margin:0px;">
+			<ul>
 				<li>Message for user here</li>
 			</ul>
 		</div>
@@ -68,7 +69,7 @@
 		<div class="navPanel">
 				<div class="viewNav">
 					<h3><span rsf:id="items-header">Items</span></h3>
-					<p rsf:id="items-description" class="instruction">Questions or statements which the evaluator responds to.</p>
+					<p rsf:id="items-description" class="instructionText">Questions or statements which the evaluator responds to.</p>
 				</div>
 				<div class="listNav">
 					<label rsf:id="add-item-header" for="item-classification-list-selection">Add Item</label>
@@ -104,7 +105,7 @@
 		
 		<!-- This block (list items) is not visible if there are no items visible -->
         <form rsf:id="copyForm">
-  			<table rsf:id="item-listing:" class="listHier lines nolines" border="0" cellpadding="0" cellspacing="0" summary="placeholder summary">
+  			<table rsf:id="item-listing:" class="evalsysTable">
   				<thead class="skip" style="display:none">
   					<tr>
   						<th id="itemMD">
@@ -122,7 +123,7 @@
   					<tr rsf:id="item-row:">
   						<td headers="itemMD">
   							<h4 rsf:id="item-classification" style="display:inline">Item Classification</h4>
-  							<span rsf:id="item-scale" class="instruction">
+  							<span rsf:id="item-scale" class="instructionText">
   								- Item Scale (the title of the scale and the points in parens)
   							</span>
                             <span rsf:id="item-expert" style="font-weight: bold;">
@@ -138,7 +139,7 @@
   							<a rsf:id="item-modify-link" href="modify_scaled.html" rel="facebox">Edit</a>
   							<span rsf:id="item-modify-dummy"></span> | 
   							<a rsf:id="item-preview-link" href="preview_item.html" rel="facebox">Preview</a> |
-                            <input rsf:id="item-copy-link" type="submit" class="makeLink" value="Copy" />
+  							<input rsf:id="item-copy-link" type="submit" class="makeLink" value="Copy" onclick="SPNR.disableControlsAndSpin( this, null );" />
   						</td>
   						<td headers="itemOwner" style="margin:0em 1em;">
   							<span rsf:id="item-owner">owner displayname</span>
@@ -158,7 +159,7 @@
   							<a rsf:id="item-modify-link" href="modify_scaled.html" rel="facebox">Edit</a>
   							<span rsf:id="item-modify-dummy"></span> |
   							<a rsf:id="item-preview-link" href="preview_item.html" rel="facebox">Preview</a> |
-                            <input rsf:id="item-copy-link" type="submit" class="makeLink" value="Copy" />
+  							<input rsf:id="item-copy-link" type="submit" class="makeLink" value="Copy" onclick="SPNR.disableControlsAndSpin( this, null );" />
   						</td>
   						<td style="margin:0em 1em;">
   							<span rsf:id="item-owner">owner displayname</span>
@@ -168,7 +169,7 @@
   			</table>
         </form>
 		
-		<div rsf:id="no-items" class="instruction">No items available</div>
+		<div rsf:id="no-items" class="instructionText">No items available</div>
 	
 	</div>
 </body>

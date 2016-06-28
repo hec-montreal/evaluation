@@ -69,19 +69,12 @@ public class RemoveItemProducer extends EvalCommonProducer implements ViewParams
         this.itemRenderer = itemRenderer;
     }
 
-    private NavBarRenderer navBarRenderer;
-    public void setNavBarRenderer(NavBarRenderer navBarRenderer) {
-		this.navBarRenderer = navBarRenderer;
-	}
-    
     /* (non-Javadoc)
      * @see uk.org.ponder.rsf.view.ComponentProducer#fillComponents(uk.org.ponder.rsf.components.UIContainer, uk.org.ponder.rsf.viewstate.ViewParameters, uk.org.ponder.rsf.view.ComponentChecker)
      */
     public void fill(UIContainer tofill, ViewParameters viewparams, ComponentChecker checker) {
 
         UIMessage.make(tofill, "page-title", "removeitem.page.title");
-
-        navBarRenderer.makeNavBar(tofill, NavBarRenderer.NAV_ELEMENT, this.getViewID());
 
         // get templateItem to preview from VPs
         ItemViewParameters itemViewParams = (ItemViewParameters) viewparams;
@@ -105,7 +98,7 @@ public class RemoveItemProducer extends EvalCommonProducer implements ViewParams
         String actionBinding = "deleteItemAction";
 
         int displayNum = 1;
-        String itemOTPBinding = null;
+        String itemOTPBinding;
         if (item == null) {
             // we are removing a template item
             itemOTPBinding = "templateItemWBL."+templateItem.getId();
@@ -161,6 +154,7 @@ public class RemoveItemProducer extends EvalCommonProducer implements ViewParams
             deleteCommand.parameters.add(new UIELBinding(beanBinding + "itemId", item.getId()));
         }
 
+        UICommand.make( form, "cancel-button", UIMessage.make( "general.cancel.button" ) );
     }
 
     /* (non-Javadoc)

@@ -22,6 +22,7 @@
 		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 		<link href="/library/skin/tool_base.css" rsf:id="scr=portal-matter" type="text/css" rel="stylesheet" media="all"/>
 		<link href="/library/skin/default/tool.css" rsf:id="scr=portal-matter" type="text/css" rel="stylesheet" media="all"/>
+		<script type="text/javascript" src="/library/js/spinner.js"></script>
 		<script type="text/javascript" rsf:id="scr=portal-matter" language="JavaScript" src="/library/js/headscripts.js"></script>
 		<link href="../css/evaluation_base.css" type="text/css" rel="stylesheet" media="all" />
 	</head>
@@ -31,18 +32,20 @@
 		   <div rsf:id="navIntraTool:" class="navIntraTool"/>
 		
 			<ul class="breadCrumb">
-				<li><a rsf:id="summary-link" href="summary.html">Summary</a></li><li><a rsf:id="control-templates-link" href="control_templates.html">My Templates</a></li><li class="lastCrumb" rsf:id="chown-template-title">Change Template Owner</li>
+				<li><a rsf:id="summary-link" href="summary.html">Summary</a></li>
+				<li><a rsf:id="control-templates-link" href="control_templates.html">My Templates</a></li>
+				<li class="lastCrumbNoFloat" rsf:id="chown-template-title">Change Template Owner</li>
 			</ul>
 			
 			<div rsf:id="message-for:*" class="alertMessage">
-				<ul style="margin:0px;">
-					<li>Message for user here</li>                                                    
+				<ul>
+					<li>Message for user here</li>
 				</ul>
 			</div>
 			
 			<h3 rsf:id="chown-template-title"></h3>
 			<div rsf:id="cannot-chown-message" class="alertMessage"></div>
-																																													  
+
 			<div rsf:id="chownDiv:">
 				<div class="alertMessage">
 					<span rsf:id="chown-template-confirm-text">Are you sure you want to remove template NAME? The removal is permanant.</span>
@@ -54,10 +57,10 @@
 						<label rsf:id="chown-template-newownerlabel" for="title">Change Template Owner</label>
 						<input name="chown" rsf:id="chown-template-newowner"   id="chown"  type="text" value="" size="50" maxlength="255" />
 						</p>
-						<input rsf:id="chown-template-button" type="submit" value="Chown Template" class="active" accesskey="s" />
+						<input rsf:id="chown-template-button" type="submit" value="Chown Template" class="active" accesskey="s" onclick="SPNR.disableControlsAndSpin( this, null );" />
 					</form>
-					<input rsf:id="cancel-command-link" type="button" value="Cancel" onclick="javascript:history.go(-1);return false;" accesskey="x"/>	
-				</div>	
+					<input rsf:id="cancel-command-link" type="submit" value="Cancel" onclick="SPNR.disableControlsAndSpin( this, null );history.go(-1);return false;" accesskey="x"/>
+				</div>
 			</div>
 		
 		</div>

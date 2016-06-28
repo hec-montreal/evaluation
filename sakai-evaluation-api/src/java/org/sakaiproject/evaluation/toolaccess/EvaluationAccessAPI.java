@@ -16,13 +16,12 @@
 package org.sakaiproject.evaluation.toolaccess;
 
 import java.io.OutputStream;
-import java.util.List;
 
-import org.sakaiproject.entity.api.HttpAccess;
 import org.sakaiproject.evaluation.model.EvalEvaluation;
 
 public interface EvaluationAccessAPI {
 
 	public void setToolApi (ToolApi t);
 	public void exportReport(EvalEvaluation evaluation, String groupIds, OutputStream outputStream, String exportType);
+	public void exportReport(EvalEvaluation evaluation, String[] groupIds, String evaluateeId,OutputStream outputStream, String exportType);
 }
