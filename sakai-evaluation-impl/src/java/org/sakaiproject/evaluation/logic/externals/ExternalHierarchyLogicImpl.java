@@ -480,6 +480,14 @@ public class ExternalHierarchyLogicImpl implements ExternalHierarchyLogic {
         Set<String> s = new HashSet<>();
         if (evalHierarchyProvider != null) {
             s = evalHierarchyProvider.getEvalGroupsForNode(nodeId);
+        } else {
+            EvalGroupNodes egn = getEvalGroupNodeByNodeId(nodeId);
+            if (egn != null) {
+                String[] evalGroups = egn.getEvalGroups();
+                for (int i = 0; i < evalGroups.length; i++) {
+                    s.add(evalGroups[i]);
+                }
+            }
         }
 
         // Support for resolving eval groups based on hierarchy node rules.
@@ -503,7 +511,8 @@ public class ExternalHierarchyLogicImpl implements ExternalHierarchyLogic {
             // Hierarchy rules should be obeyed regardless of if an external provider is present or not (supplemental)
             for( String nodeID : nodeIds )
             {
-                m.put( nodeID, getEvalGroupsForNodeSectionAware( nodeID ) );
+            	// TODO: this is not supplemental, external provider eval groups will be replaced?
+                m.put( nodeID, getEvalGroupsForNode( nodeID ) );
             }
         }
         return m;
