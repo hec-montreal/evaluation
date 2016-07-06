@@ -165,7 +165,7 @@ public class PDFReportExporter implements ReportExporter {
         evalPDFReportBuilder.addIntroduction(evaluation.getTitle(), 
                 htmlContentParser(
                         commonLogic.makePlainTextFromHTML(
-                                evaluation.getInstructions())));
+                                (evaluation.getInstructions() == null ? "" : evaluation.getInstructions()))));
 
         // Reset question numbering
         displayNumber = 0;
