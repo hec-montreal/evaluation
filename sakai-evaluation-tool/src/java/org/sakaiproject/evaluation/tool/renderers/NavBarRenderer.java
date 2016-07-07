@@ -99,16 +99,16 @@ public class NavBarRenderer {
         }
 
         // Provide logout and my workspace links
-        if( !isUserAdmin && !adminAllowedToSee && !canCreateTemplate && !canBeginEvaluation )
-        {
-            UILink.make( UIBranchContainer.make( joint, "navigation-cell:" ), "item-link", 
-                    UIMessage.make( "summary.myworkspace.link.label" ), 
-                    developerHelperService.getUserHomeLocationURL( developerHelperService.getCurrentUserReference() ) );
+        // if( !isUserAdmin && !adminAllowedToSee && !canCreateTemplate && !canBeginEvaluation )
+        // {
+        //     UILink.make( UIBranchContainer.make( joint, "navigation-cell:" ), "item-link", 
+        //             UIMessage.make( "summary.myworkspace.link.label" ), 
+        //             developerHelperService.getUserHomeLocationURL( developerHelperService.getCurrentUserReference() ) );
 
-            UILink.make( UIBranchContainer.make( joint, "navigation-cell:" ), "item-link", 
-                    UIMessage.make( "summary.logout.link.label", new Object[] { serverConfigurationService.getString( SAK_PROP_UI_SERVICE, UI_SERVICE_DEFAULT ) } ), 
-                    developerHelperService.getPortalURL() + "/logout" );
-        }
+        //     UILink.make( UIBranchContainer.make( joint, "navigation-cell:" ), "item-link", 
+        //             UIMessage.make( "summary.logout.link.label", new Object[] { serverConfigurationService.getString( SAK_PROP_UI_SERVICE, UI_SERVICE_DEFAULT ) } ), 
+        //             developerHelperService.getPortalURL() + "/logout" );
+        // }
 
         renderLink(joint, SummaryProducer.VIEW_ID, "summary.page.title");
         
