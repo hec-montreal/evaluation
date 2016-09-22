@@ -593,4 +593,14 @@ public class EvalPDFReportBuilder {
 		}
     }
     
+    public void addSectionHeader(String headerText) {
+        try {
+            Paragraph headerPara = new Paragraph(headerText);
+            responseArea.addElement(headerPara);
+        } catch (Exception e) {
+            throw UniversalRuntimeException.accumulate(e, "Unable to add Header to PDF Report");
+        }
+    }
+
+    
 }

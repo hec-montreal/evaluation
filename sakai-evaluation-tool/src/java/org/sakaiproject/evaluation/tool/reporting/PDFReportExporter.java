@@ -25,13 +25,13 @@ import java.util.regex.Pattern;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.evaluation.constant.EvalConstants;
 import org.sakaiproject.evaluation.logic.EvalCommonLogic;
 import org.sakaiproject.evaluation.logic.EvalDeliveryService;
 import org.sakaiproject.evaluation.logic.EvalEvaluationService;
 import org.sakaiproject.evaluation.logic.EvalSettings;
+import org.sakaiproject.evaluation.logic.model.EvalUser;
 import org.sakaiproject.evaluation.model.EvalAnswer;
 import org.sakaiproject.evaluation.model.EvalEvaluation;
 import org.sakaiproject.evaluation.model.EvalItem;
@@ -44,6 +44,9 @@ import org.sakaiproject.evaluation.utils.TemplateItemUtils;
 import org.sakaiproject.evaluation.utils.TemplateItemDataList.DataTemplateItem;
 import org.sakaiproject.evaluation.utils.TemplateItemDataList.HierarchyNodeGroup;
 import org.sakaiproject.evaluation.utils.TemplateItemDataList.TemplateItemGroup;
+
+import com.lowagie.text.Font;
+import com.lowagie.text.FontFactory;
 
 import uk.org.ponder.messageutil.MessageLocator;
 
@@ -184,24 +187,25 @@ public class PDFReportExporter implements ReportExporter {
                 // skip items that aren't for the current user
                 continue;
             }
-            
+            Font frontInfoFont = FontFactory.getFont(FontFactory.TIMES_ROMAN, 16, Font.NORMAL);;
             // Print the type of the next group we're doing
-            /*if (EvalConstants.ITEM_CATEGORY_COURSE.equals(tig.associateType)) {
-                evalPDFReportBuilder.addSectionHeader(messageLocator
-                        .getMessage("viewreport.itemlist.course"), false);
+            if (EvalConstants.ITEM_CATEGORY_COURSE.equals(tig.associateType)) {
+                 evalPDFReportBuilder.addSectionHeader(messageLocator
+                        .getMessage("viewreport.itemlist.course"), false,frontInfoFont.getSize());
             } else if (EvalConstants.ITEM_CATEGORY_INSTRUCTOR.equals(tig.associateType)) {
                 EvalUser user = commonLogic.getEvalUserById( tig.associateId );
                 String instructorMsg = messageLocator.getMessage("reporting.spreadsheet.instructor", 
                         new Object[] {user.displayName});
-                evalPDFReportBuilder.addSectionHeader( instructorMsg , false);
+               evalPDFReportBuilder.addSectionHeader( instructorMsg , false,frontInfoFont.getSize());
             } else if (EvalConstants.ITEM_CATEGORY_ASSISTANT.equals(tig.associateType)) {
                 EvalUser user = commonLogic.getEvalUserById( tig.associateId );
                 String assistantMsg = messageLocator.getMessage("reporting.spreadsheet.ta", 
                         new Object[] {user.displayName});
-                evalPDFReportBuilder.addSectionHeader( assistantMsg, false);
+         
+                evalPDFReportBuilder.addSectionHeader( assistantMsg, false,frontInfoFont.getSize());
             } else {
-                evalPDFReportBuilder.addSectionHeader(messageLocator.getMessage("unknown.caps"), false);
-            }*/
+            	evalPDFReportBuilder.addSectionHeader(messageLocator.getMessage("unknown.caps"), false,frontInfoFont.getSize());
+            }
 
             for (HierarchyNodeGroup hng : tig.hierarchyNodeGroups) {
                 // Render the Node title if it's enabled in the admin settings.
