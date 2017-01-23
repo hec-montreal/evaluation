@@ -63,14 +63,6 @@ public class EvalScheduledInvocationImpl implements EvalScheduledInvocation {
 
         // call method to fix state, send email and/or schedule a job
         evalJobLogic.jobAction(evalId, jobType);
-        
-	//TODO: remove this test code!
-        try {
-		//wait 10 seconds to see if other servers send emails also
-        	Thread.sleep(10000);
-        } catch (Exception e) {
-        	
-        }
     }
 }
 
