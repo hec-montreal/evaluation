@@ -619,7 +619,8 @@ public class ExternalHierarchyLogicImpl implements ExternalHierarchyLogic {
                     for( String sectionID : realmSectionIDs.get( realmID ) )
                     {
                         Section section = courseManagementService.getSection( sectionID );
-                        if( siteOrSectionTitleSatisfiesRule( section.getTitle(), qualifier, rawRuleText ) )
+                        String courseOfferingTitle = courseManagementService.getCourseOffering(section.getCourseOfferingEid()).getTitle();
+                        if( siteOrSectionTitleSatisfiesRule( courseOfferingTitle + " - " + section.getTitle(), qualifier, rawRuleText ) )
                         {
                             nodeID = rule.getNodeID().toString();
                         }

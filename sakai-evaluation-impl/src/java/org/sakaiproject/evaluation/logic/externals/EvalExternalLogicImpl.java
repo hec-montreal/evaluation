@@ -532,8 +532,9 @@ public class EvalExternalLogicImpl implements EvalExternalLogic {
                 try
                 {
                     Section section = courseManagementService.getSection( sectionID );
+                    Site site = siteService.getSite(evalGroupId.replace( EvalConstants.GROUP_ID_SITE_PREFIX, "" ));
                     EvalGroup group = new EvalGroup( evalGroupId + EvalConstants.GROUP_ID_SECTION_PREFIX + sectionID, 
-                            section.getTitle(), getContextType( SAKAI_SECTION_TYPE ) );
+                          site.getTitle()   + " - " + section.getTitle(), getContextType( SAKAI_SECTION_TYPE ) );
                     groups.add( group );
                 }
                 catch( IdNotFoundException ex ) { LOG.debug( "Could not find section with ID = " + sectionID, ex ); }
