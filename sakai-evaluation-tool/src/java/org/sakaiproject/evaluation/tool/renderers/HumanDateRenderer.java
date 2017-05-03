@@ -88,20 +88,37 @@ public class HumanDateRenderer {
         }
         String groupTitle = "";
         String groupType = "";
+        String siteid = "";
+        Site site;
+        ResourceProperties properties;
+        
         if (group != null) {
             // ZCII-2385 : we must use the title property from the site rather than the actual title
             try {
-                String siteid = group.evalGroupId.substring(group.evalGroupId.lastIndexOf('/')+1);
-                Site site = SiteService.getSite(siteid);
-                ResourceProperties properties = site.getProperties();
+                siteid = group.evalGroupId.substring(group.evalGroupId.lastIndexOf('/')+1);
+                site = SiteService.getSite(siteid);
+                properties = site.getProperties();
                 groupTitle = properties.getProperty("title");
+
+	            
             } catch (IdUnusedException e) {
                 // We'll use the group title rather than find it in the site properties. 
             }
-
-            if (null == groupTitle || groupTitle.equals((""))) {
-                groupTitle = group.title;
+            
+            try{
+            
+	            if ((null == groupTitle || groupTitle.equals((""))) && (group.evalGroupId.contains("/section/"))) {
+	            	siteid = group.evalGroupId.substring(6, group.evalGroupId.indexOf("/section/"));
+	                site = SiteService.getSite(siteid);
+	                properties = site.getProperties();
+	                groupTitle = siteid + " - " +  properties.getProperty("title");
+	            }
+            }catch (IdUnusedException e) {
+                // We'll use the group title rather than find it in the site properties. 
+            	 groupTitle = group.title;
             }
+            
+            
             groupType = group.type;
         }
         String title = messageLocator.getMessage("eval.display.title", new Object[] {evalTitle, groupTitle, evalState, evalTerm, groupType}) + " ";

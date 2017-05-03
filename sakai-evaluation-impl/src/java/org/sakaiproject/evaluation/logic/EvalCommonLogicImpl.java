@@ -409,6 +409,15 @@ public class EvalCommonLogicImpl implements EvalCommonLogic {
                     EvalConstants.GROUP_TYPE_INVALID );
         }
 
+        String siteId;
+        
+        if (evalGroupId.contains("/section/"))
+        	siteId = evalGroupId.substring(6, evalGroupId.indexOf("/section/")) + " - ";
+        else
+        	siteId = "";
+        
+        c.title = siteId + c.title;
+
         return c;
     }
 
