@@ -28,6 +28,7 @@ import org.quartz.Job;
 import org.sakaiproject.evaluation.constant.EvalConstants;
 import org.sakaiproject.evaluation.logic.externals.EvalExternalLogic;
 import org.sakaiproject.evaluation.logic.model.EvalGroup;
+import org.sakaiproject.evaluation.logic.model.EvalHierarchyNode;
 import org.sakaiproject.evaluation.logic.model.EvalScheduledJob;
 import org.sakaiproject.evaluation.logic.model.EvalUser;
 import org.sakaiproject.evaluation.logic.model.HierarchyNodeRule;
@@ -728,4 +729,11 @@ public class MockEvalExternalLogic implements EvalExternalLogic {
     {
         return new ArrayList<>();
     }
+
+
+	@Override
+    //ZCII-2959: Changer les titres des évaluations pour tenir compte des sections
+	public List<EvalGroup> makeEvalGroupObjectsForSectionAwareness(String evalGroupId, EvalHierarchyNode parentNode) {
+		return new ArrayList<>();
+	}
 }

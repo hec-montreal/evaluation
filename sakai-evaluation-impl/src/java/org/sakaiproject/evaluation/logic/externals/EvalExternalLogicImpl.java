@@ -82,6 +82,7 @@ import org.sakaiproject.evaluation.logic.entity.ItemEntityProvider;
 import org.sakaiproject.evaluation.logic.entity.TemplateEntityProvider;
 import org.sakaiproject.evaluation.logic.entity.TemplateItemEntityProvider;
 import org.sakaiproject.evaluation.logic.model.EvalGroup;
+import org.sakaiproject.evaluation.logic.model.EvalHierarchyNode;
 import org.sakaiproject.evaluation.logic.model.EvalScheduledJob;
 import org.sakaiproject.evaluation.logic.model.EvalUser;
 import org.sakaiproject.evaluation.logic.model.HierarchyNodeRule;
@@ -507,6 +508,40 @@ public class EvalExternalLogicImpl implements EvalExternalLogic {
         return new ResourceLoader().getLocale();
     }
 
+
+    /* (non-Javadoc)
+     * @see org.sakaiproject.evaluation.logic.externals.ExternalEvalGroups#makeEvalGroupObjectsForSectionAwareness(java.lang.String, org.sakaiproject.evaluation.logic.model.EvalHierarchyNode )
+     */
+    
+    //ZCII-2959: Changer les titres des évaluations pour tenir compte des sections
+    
+    public List<EvalGroup> makeEvalGroupObjectsForSectionAwareness( String evalGroupId, EvalHierarchyNode parentNode ){
+    	List<EvalGroup> groups = makeEvalGroupObjectsForSectionAwareness(evalGroupId);
+    	String sectionId, typeEvaluation;
+    	Section section;
+    	List<EvalGroup> removeGroups = new ArrayList<EvalGroup>();
+    	for (EvalGroup evalGroup: groups){
+    		if (EvalConstants.GROUP_TYPE_SECTION.equalsIgnoreCase(evalGroup.type)){
+    			sectionId = evalGroup.evalGroupId.substring( evalGroup.evalGroupId.indexOf( EvalConstants.GROUP_ID_SECTION_PREFIX ) 
+                        + EvalConstants.GROUP_ID_SECTION_PREFIX.length() ) ;
+    			section = courseManagementService.getSection(sectionId);
+    			typeEvaluation = (section.getTypeEvaluation()==null? "par défaut": section.getTypeEvaluation());
+    			if (!typeEvaluation.equalsIgnoreCase(parentNode.title))
+    				removeGroups.add(evalGroup);
+    		}
+    	}
+    	
+    	//Remove groups
+    	for (EvalGroup evalGroup: removeGroups){
+    		groups.remove(evalGroup);
+    	}
+
+    	return groups;
+    }
+    
+    // End ZCII-2959: Changer les titres des évaluations pour tenir compte des sections
+
+    
     /* (non-Javadoc)
      * @see org.sakaiproject.evaluation.logic.externals.ExternalEvalGroups#makeEvalGroupObjectsForSectionAwareness(java.lang.String)
      */

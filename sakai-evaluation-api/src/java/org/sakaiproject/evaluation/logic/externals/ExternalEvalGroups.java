@@ -20,6 +20,7 @@ import java.util.Set;
 import org.sakaiproject.evaluation.constant.EvalConstants;
 import org.sakaiproject.evaluation.logic.EvalCommonLogic;
 import org.sakaiproject.evaluation.logic.model.EvalGroup;
+import org.sakaiproject.evaluation.logic.model.EvalHierarchyNode;
 
 /**
  * This interface provides methods to get EvalGroups (user collections) information
@@ -57,6 +58,19 @@ public interface ExternalEvalGroups {
 	 * @return a List of {@link EvalGroup} objects (special return if not found)
 	 */
 	public List<EvalGroup> makeEvalGroupObjectsForSectionAwareness( String evalGroupId );
+	
+	/**
+	 * Construct a List of {@link EvalGroup} objects (child sections) based on the unique string id (parent site),
+	 * group will have a special type {@link EvalConstants#GROUP_TYPE_INVALID} if data cannot be found.
+	 * 
+	 * 
+	 * @param evalGroupId the internal unique ID for an evalGroup
+	 * @param parentNode to double check course section is in the right hierarchy
+	 * @return a List of {@link EvalGroup} objects (special return if not found)
+	 */
+    //ZCII-2959: Changer les titres des évaluations pour tenir compte des sections
+
+	public List<EvalGroup> makeEvalGroupObjectsForSectionAwareness( String evalGroupId, EvalHierarchyNode parentNode );
 
 	// ENROLLMENTS
 

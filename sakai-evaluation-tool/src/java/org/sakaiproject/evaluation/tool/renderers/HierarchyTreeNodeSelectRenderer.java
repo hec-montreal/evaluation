@@ -27,6 +27,7 @@ import org.sakaiproject.evaluation.logic.EvalCommonLogic;
 import org.sakaiproject.evaluation.logic.externals.ExternalHierarchyLogic;
 import org.sakaiproject.evaluation.logic.model.EvalGroup;
 import org.sakaiproject.evaluation.logic.model.EvalHierarchyNode;
+import org.sakaiproject.evaluation.model.EvalGroupNodes;
 import org.sakaiproject.evaluation.tool.viewparams.EvalViewParameters;
 
 import uk.org.ponder.arrayutil.MapUtil;
@@ -247,7 +248,17 @@ public class HierarchyTreeNodeSelectRenderer {
                     else
                     {
                         // Get the eval groups (child sections) under this group ID (parent site), and render a row for each
-                        List<EvalGroup> evalGroups = commonLogic.makeEvalGroupObjectsForSectionAwareness( groupID );
+                        //ZCII-2959: Changer les titres des évaluations pour tenir compte des sections
+                    	List<EvalGroup> evalGroups = commonLogic.makeEvalGroupObjectsForSectionAwareness( groupID, node );
+                        
+                        String[] groupNodes;
+                        for(EvalGroup evalGroup: evalGroups){
+                     	   groupNodes = evalViewParams.expanded;
+                     	   
+                        }                       
+                       //END - ZCII-2959: Changer les titres des évaluations pour tenir compte des sections
+                        
+                        
                         for( EvalGroup evalGroup : evalGroups )
                         {
                             renderRow( tofill, "hierarchy-level-row:", level + 1, evalGroup, evalViewParams, accessNodeIds, currentNodeParents, false );
