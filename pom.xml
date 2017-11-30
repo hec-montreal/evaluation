@@ -38,12 +38,12 @@
     <parent>
         <groupId>org.sakaiproject</groupId>
         <artifactId>master</artifactId>
-        <version>11.3</version>
+	<version>11.3</version>
         <relativePath>../master/pom.xml</relativePath>
     </parent>
 
     <properties>
-        <hierarchy.version>11-SNAPSHOT</hierarchy.version>
+	    <hierarchy.version>${sakai.version}</hierarchy.version>
         <evalsys.pom.basedir>${project.basedir}</evalsys.pom.basedir>
         <evalsys.project.name>${project.name}</evalsys.project.name>
         <evalsys.project.year>${project.inceptionYear}</evalsys.project.year>
