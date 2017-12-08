@@ -14,38 +14,24 @@
  */
 package org.sakaiproject.evaluation.logic.externals;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import org.apache.commons.lang.*;
+import org.apache.commons.logging.*;
+import org.sakaiproject.authz.api.*;
+import org.sakaiproject.coursemanagement.api.*;
+import org.sakaiproject.coursemanagement.api.exception.*;
+import org.sakaiproject.evaluation.constant.*;
+import org.sakaiproject.evaluation.dao.*;
+import org.sakaiproject.evaluation.logic.model.*;
+import org.sakaiproject.evaluation.model.*;
+import org.sakaiproject.evaluation.providers.*;
+import org.sakaiproject.exception.*;
+import org.sakaiproject.genericdao.api.search.*;
+import org.sakaiproject.hierarchy.*;
+import org.sakaiproject.hierarchy.model.*;
+import org.sakaiproject.hierarchy.utils.*;
+import org.sakaiproject.site.api.*;
 
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.sakaiproject.coursemanagement.api.CourseManagementService;
-import org.sakaiproject.coursemanagement.api.Section;
-import org.sakaiproject.authz.api.AuthzGroupService;
-import org.sakaiproject.coursemanagement.api.exception.IdNotFoundException;
-import org.sakaiproject.evaluation.constant.EvalConstants;
-import org.sakaiproject.evaluation.dao.EvaluationDao;
-import org.sakaiproject.evaluation.logic.model.EvalHierarchyNode;
-import org.sakaiproject.evaluation.logic.model.HierarchyNodeRule;
-import org.sakaiproject.evaluation.model.EvalGroupNodes;
-import org.sakaiproject.evaluation.model.EvalTemplateItem;
-import org.sakaiproject.evaluation.providers.EvalHierarchyProvider;
-import org.sakaiproject.exception.IdUnusedException;
-import org.sakaiproject.genericdao.api.search.Order;
-import org.sakaiproject.genericdao.api.search.Restriction;
-import org.sakaiproject.genericdao.api.search.Search;
-import org.sakaiproject.hierarchy.HierarchyService;
-import org.sakaiproject.hierarchy.model.HierarchyNode;
-import org.sakaiproject.hierarchy.utils.HierarchyUtils;
-import org.sakaiproject.site.api.SiteService;
-import org.sakaiproject.site.api.Site;
+import java.util.*;
 
 /**
  * Allows Evaluation to interface with an external hierarchy system,
@@ -503,7 +489,10 @@ public class ExternalHierarchyLogicImpl implements ExternalHierarchyLogic {
             // Hierarchy rules should be obeyed regardless of if an external provider is present or not (supplemental)
             for( String nodeID : nodeIds )
             {
-                m.put( nodeID, getEvalGroupsForNodeSectionAware( nodeID ) );
+                Set<String> evalGroupsForNodeSectionAware = getEvalGroupsForNodeSectionAware(nodeID);
+                if (!evalGroupsForNodeSectionAware.isEmpty()) {
+                    m.put(nodeID, evalGroupsForNodeSectionAware);
+                }
             }
         }
         return m;
@@ -620,7 +609,8 @@ public class ExternalHierarchyLogicImpl implements ExternalHierarchyLogic {
                     {
                         Section section = courseManagementService.getSection( sectionID );
                         String courseOfferingTitle = courseManagementService.getCourseOffering(section.getCourseOfferingEid()).getTitle();
-                        if( siteOrSectionTitleSatisfiesRule( courseOfferingTitle + " - " + section.getTitle(), qualifier, rawRuleText ) )
+                        if( siteOrSectionTitleSatisfiesRule( section.getTitle(), qualifier, rawRuleText ) )
+                        	//if( siteOrSectionTitleSatisfiesRule( courseOfferingTitle + " - " + section.getTitle(), qualifier, rawRuleText ) )
                         {
                             nodeID = rule.getNodeID().toString();
                         }

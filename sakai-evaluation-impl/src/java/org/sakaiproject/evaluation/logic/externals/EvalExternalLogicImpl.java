@@ -14,108 +14,42 @@
  */
 package org.sakaiproject.evaluation.logic.externals;
 
-import java.io.Serializable;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
-import java.util.UUID;
-
-import javax.mail.internet.AddressException;
-import javax.mail.internet.InternetAddress;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.apache.commons.lang.StringUtils;
-import org.quartz.CronScheduleBuilder;
-import org.quartz.CronTrigger;
-import org.quartz.Job;
-import org.quartz.JobBuilder;
-import org.quartz.JobDataMap;
-import org.quartz.JobDetail;
-import org.quartz.JobKey;
-import org.quartz.Scheduler;
-import org.quartz.SchedulerException;
-import org.quartz.Trigger;
-import org.quartz.TriggerBuilder;
-import org.quartz.TriggerKey;
-import org.quartz.impl.matchers.GroupMatcher;
-import org.sakaiproject.api.app.scheduler.DelayedInvocation;
-import org.sakaiproject.api.app.scheduler.ScheduledInvocationManager;
-import org.sakaiproject.api.app.scheduler.SchedulerManager;
-import org.sakaiproject.authz.api.AuthzGroupService;
-import org.sakaiproject.authz.api.FunctionManager;
-import org.sakaiproject.authz.api.Role;
-import org.sakaiproject.authz.api.SecurityService;
-import org.sakaiproject.cluster.api.ClusterService;
+import org.apache.commons.lang.*;
+import org.apache.commons.logging.*;
+import org.quartz.*;
+import org.quartz.impl.matchers.*;
+import org.sakaiproject.api.app.scheduler.*;
+import org.sakaiproject.authz.api.*;
+import org.sakaiproject.cluster.api.*;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.component.cover.ComponentManager;
-import org.sakaiproject.content.api.ContentHostingService;
-import org.sakaiproject.content.api.ContentResource;
-import org.sakaiproject.coursemanagement.api.CourseManagementService;
-import org.sakaiproject.coursemanagement.api.Section;
-import org.sakaiproject.coursemanagement.api.exception.IdNotFoundException;
-import org.sakaiproject.coursemanagement.impl.provider.SectionRoleResolver;
-import org.sakaiproject.email.api.EmailService;
-import org.sakaiproject.entity.api.EntityManager;
-import org.sakaiproject.entity.api.EntityPropertyNotDefinedException;
-import org.sakaiproject.entity.api.EntityPropertyTypeException;
-import org.sakaiproject.entity.api.Reference;
-import org.sakaiproject.entitybroker.EntityBroker;
-import org.sakaiproject.entitybroker.EntityReference;
-import org.sakaiproject.evaluation.constant.EvalConstants;
-import org.sakaiproject.evaluation.logic.entity.AssignGroupEntityProvider;
-import org.sakaiproject.evaluation.logic.entity.ConfigEntityProvider;
-import org.sakaiproject.evaluation.logic.entity.EvaluationEntityProvider;
-import org.sakaiproject.evaluation.logic.entity.ItemEntityProvider;
-import org.sakaiproject.evaluation.logic.entity.TemplateEntityProvider;
-import org.sakaiproject.evaluation.logic.entity.TemplateItemEntityProvider;
-import org.sakaiproject.evaluation.logic.model.EvalGroup;
-import org.sakaiproject.evaluation.logic.model.EvalHierarchyNode;
-import org.sakaiproject.evaluation.logic.model.EvalScheduledJob;
-import org.sakaiproject.evaluation.logic.model.EvalUser;
-import org.sakaiproject.evaluation.logic.model.HierarchyNodeRule;
-import org.sakaiproject.evaluation.model.EvalAssignGroup;
-import org.sakaiproject.evaluation.model.EvalAssignHierarchy;
-import org.sakaiproject.evaluation.model.EvalConfig;
-import org.sakaiproject.evaluation.model.EvalEvaluation;
-import org.sakaiproject.evaluation.model.EvalItem;
-import org.sakaiproject.evaluation.model.EvalResponse;
-import org.sakaiproject.evaluation.model.EvalScale;
-import org.sakaiproject.evaluation.model.EvalTemplate;
-import org.sakaiproject.evaluation.model.EvalTemplateItem;
-import org.sakaiproject.evaluation.providers.EvalGroupsProvider;
+import org.sakaiproject.content.api.*;
+import org.sakaiproject.coursemanagement.api.*;
+import org.sakaiproject.coursemanagement.api.exception.*;
+import org.sakaiproject.coursemanagement.impl.provider.*;
+import org.sakaiproject.email.api.*;
+import org.sakaiproject.entity.api.*;
+import org.sakaiproject.entitybroker.*;
+import org.sakaiproject.evaluation.constant.*;
+import org.sakaiproject.evaluation.dao.*;
+import org.sakaiproject.evaluation.logic.entity.*;
+import org.sakaiproject.evaluation.logic.model.*;
+import org.sakaiproject.evaluation.model.*;
+import org.sakaiproject.evaluation.providers.*;
 import org.sakaiproject.evaluation.utils.ArrayUtils;
-import org.sakaiproject.exception.IdUnusedException;
-import org.sakaiproject.site.api.Group;
-import org.sakaiproject.site.api.Site;
-import org.sakaiproject.site.api.SitePage;
-import org.sakaiproject.site.api.SiteService;
-import org.sakaiproject.site.api.ToolConfiguration;
-import org.sakaiproject.time.api.TimeService;
-import org.sakaiproject.tool.api.Session;
-import org.sakaiproject.tool.api.SessionManager;
-import org.sakaiproject.tool.api.ToolManager;
-import org.sakaiproject.user.api.User;
-import org.sakaiproject.user.api.UserDirectoryService;
-import org.sakaiproject.user.api.UserNotDefinedException;
-import org.sakaiproject.util.FormattedText;
-import org.sakaiproject.util.ResourceLoader;
-import org.sakaiproject.evaluation.dao.EvalHierarchyRuleSupport;
-import org.sakaiproject.exception.PermissionException;
-import org.sakaiproject.exception.ServerOverloadException;
-import org.sakaiproject.exception.TypeException;
+import org.sakaiproject.exception.*;
+import org.sakaiproject.site.api.*;
+import org.sakaiproject.time.api.*;
+import org.sakaiproject.tool.api.*;
+import org.sakaiproject.user.api.*;
+import org.sakaiproject.util.*;
+
+import javax.mail.internet.*;
+import java.io.*;
+import java.lang.reflect.*;
+import java.security.*;
+import java.util.*;
+import java.util.Map.*;
 
 
 /**
@@ -902,13 +836,23 @@ public class EvalExternalLogicImpl implements EvalExternalLogic {
         {
             try
             {
+                //ZCII-3203: make hierarchy node selection section aware
                 // Get all roles for the site
                 Site site = siteService.getSite( groupID.getSiteID() );
-                Set<Role> siteRoles = site.getRoles();
-                List<String> siteRolesWithPerm = new ArrayList<>( siteRoles.size() );
+                Group selectedGroup = null;
+                for (Group group: site.getGroups()){
+                    if (group.getProviderGroupId() != null && group.getProviderGroupId().equalsIgnoreCase(groupID.sectionID)){
+                        selectedGroup = group;
+                        break;
+                    }
 
+                }
+                Set<Role> sectionRoles = selectedGroup.getRoles();
+                List<String> siteRolesWithPerm = new ArrayList<>( sectionRoles.size() );
+                //End ZCII-3203
+                
                 // Determine which roles have the given permission
-                for( Role role : siteRoles )
+                for( Role role : sectionRoles )
                 {
                     if( role.getAllowedFunctions().contains( permission ) )
                     {
@@ -938,6 +882,7 @@ public class EvalExternalLogicImpl implements EvalExternalLogic {
             }
             catch( IdUnusedException ex ) { LOG.warn( "Could not find site with ID = " + groupID.getSiteID(), ex ); }
             catch( IdNotFoundException ex ) { LOG.warn( "Could not find section with ID = " + groupID.getSectionID(), ex ); }
+
         }
 
         // Return the user IDs
