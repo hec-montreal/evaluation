@@ -458,11 +458,16 @@ public class EvalExternalLogicImpl implements EvalExternalLogic {
     		if (EvalConstants.GROUP_TYPE_SECTION.equalsIgnoreCase(evalGroup.type)){
     			sectionId = evalGroup.evalGroupId.substring( evalGroup.evalGroupId.indexOf( EvalConstants.GROUP_ID_SECTION_PREFIX ) 
                         + EvalConstants.GROUP_ID_SECTION_PREFIX.length() ) ;
-    			section = courseManagementService.getSection(sectionId);
-    			typeEvaluation = (section.getTypeEvaluation()==null? "par défaut": section.getTypeEvaluation());
-    			if (!typeEvaluation.equalsIgnoreCase(parentNode.title))
-    				removeGroups.add(evalGroup);
+                if (sectionId != null &&
+                        !sectionId.substring(sectionId.length() - 2).equals("00") &&
+                        !sectionId.substring(sectionId.length() - 3).startsWith("DF")) {
+                    section = courseManagementService.getSection(sectionId);
+                    typeEvaluation = (section.getTypeEvaluation() == null ? "par défaut" : section.getTypeEvaluation());
+                    if (!typeEvaluation.equalsIgnoreCase(parentNode.title))
+                        removeGroups.add(evalGroup);
+                }
     		}
+
     	}
     	
     	//Remove groups
@@ -500,11 +505,15 @@ public class EvalExternalLogicImpl implements EvalExternalLogic {
             {
                 try
                 {
-                    Section section = courseManagementService.getSection( sectionID );
-                    Site site = siteService.getSite(evalGroupId.replace( EvalConstants.GROUP_ID_SITE_PREFIX, "" ));
-                    EvalGroup group = new EvalGroup( evalGroupId + EvalConstants.GROUP_ID_SECTION_PREFIX + sectionID, 
-                          site.getTitle()   + " - " + section.getTitle(), getContextType( SAKAI_SECTION_TYPE ) );
-                    groups.add( group );
+                    if (sectionID != null &&
+                            !sectionID.substring(sectionID.length() - 2).equals("00") &&
+                            !sectionID.substring(sectionID.length() - 3).startsWith("DF")) {
+                        Section section = courseManagementService.getSection(sectionID);
+                        Site site = siteService.getSite(evalGroupId.replace(EvalConstants.GROUP_ID_SITE_PREFIX, ""));
+                        EvalGroup group = new EvalGroup(evalGroupId + EvalConstants.GROUP_ID_SECTION_PREFIX + sectionID,
+                                site.getTitle() + " - " + section.getTitle(), getContextType(SAKAI_SECTION_TYPE));
+                        groups.add(group);
+                    }
                 }
                 catch( IdNotFoundException ex ) { LOG.debug( "Could not find section with ID = " + sectionID, ex ); }
             }
@@ -550,9 +559,12 @@ public class EvalExternalLogicImpl implements EvalExternalLogic {
                         // Loop through the section IDs, if one matches the section ID contained in the evalGroupID, create an EvalGroup object for it
                         for( String secID : sectionIds )
                         {
-                            if( secID.equalsIgnoreCase( sectionID ) )
-                            {
-                                c = new EvalGroup( evalGroupId, courseManagementService.getSection( secID ).getTitle(), getContextType( SAKAI_SECTION_TYPE ) );
+                            if (secID != null &&
+                                !secID.substring(secID.length() - 2).equals("00") &&
+                                !secID.substring(secID.length() - 3).startsWith("DF")) {
+                                    if (secID.equalsIgnoreCase(sectionID)) {
+                                        c = new EvalGroup(evalGroupId, courseManagementService.getSection(secID).getTitle(), getContextType(SAKAI_SECTION_TYPE));
+                                    }
                             }
                         }
                     }
@@ -850,7 +862,7 @@ public class EvalExternalLogicImpl implements EvalExternalLogic {
                 Set<Role> sectionRoles = selectedGroup.getRoles();
                 List<String> siteRolesWithPerm = new ArrayList<>( sectionRoles.size() );
                 //End ZCII-3203
-                
+
                 // Determine which roles have the given permission
                 for( Role role : sectionRoles )
                 {
