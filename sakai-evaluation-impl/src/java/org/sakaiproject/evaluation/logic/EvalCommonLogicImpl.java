@@ -424,6 +424,10 @@ public class EvalCommonLogicImpl implements EvalCommonLogic {
                     EvalConstants.GROUP_TYPE_INVALID );
         }
 
+        
+        //ZCII-PERSO: Correct the title of the evalgroup created in EvalExternalLogicImpl.makeEvalGroupObject
+        //Concatenate siteId and section.title - otherwise we would only have section.title 
+        // Used in Evaluation Assignment page
         String siteId;
         
         if (evalGroupId.contains("/section/"))
@@ -432,6 +436,8 @@ public class EvalCommonLogicImpl implements EvalCommonLogic {
         	siteId = "";
         
         c.title = siteId + c.title;
+        
+      //End ZCII-PERSO
 
         return c;
     }
