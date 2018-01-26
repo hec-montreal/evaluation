@@ -1476,7 +1476,7 @@ public class EvalEvaluationSetupServiceImpl implements EvalEvaluationSetupServic
 
                     sectionAwareEvalGroups = new HashSet<String>();
                     for (String evalGroupId: evalGroups) {
-                        for (EvalGroup evalGroup : externalLogic.makeEvalGroupObjectsForSectionAwareness(evalGroupId, hierarchyLogic.getNodeById(nodeid))) {
+                        for (EvalGroup evalGroup : externalLogic.makeEvalGroupObjectsForSectionAwareness(evalGroupId)) {
                             sectionAwareEvalGroups.add(evalGroup.evalGroupId);
                         }
                     }

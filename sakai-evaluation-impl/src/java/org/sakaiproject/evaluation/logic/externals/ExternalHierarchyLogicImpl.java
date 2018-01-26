@@ -14,24 +14,40 @@
  */
 package org.sakaiproject.evaluation.logic.externals;
 
-import org.apache.commons.lang.*;
-import org.apache.commons.logging.*;
-import org.sakaiproject.authz.api.*;
-import org.sakaiproject.coursemanagement.api.*;
-import org.sakaiproject.coursemanagement.api.exception.*;
-import org.sakaiproject.evaluation.constant.*;
-import org.sakaiproject.evaluation.dao.*;
-import org.sakaiproject.evaluation.logic.model.*;
-import org.sakaiproject.evaluation.model.*;
-import org.sakaiproject.evaluation.providers.*;
-import org.sakaiproject.exception.*;
-import org.sakaiproject.genericdao.api.search.*;
-import org.sakaiproject.hierarchy.*;
-import org.sakaiproject.hierarchy.model.*;
-import org.sakaiproject.hierarchy.utils.*;
-import org.sakaiproject.site.api.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
-import java.util.*;
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.coursemanagement.api.CourseManagementService;
+import org.sakaiproject.coursemanagement.api.Section;
+import org.sakaiproject.authz.api.AuthzGroupService;
+import org.sakaiproject.coursemanagement.api.exception.IdNotFoundException;
+import org.sakaiproject.evaluation.constant.EvalConstants;
+import org.sakaiproject.evaluation.dao.EvaluationDao;
+import org.sakaiproject.evaluation.logic.model.EvalHierarchyNode;
+import org.sakaiproject.evaluation.logic.model.HierarchyNodeRule;
+import org.sakaiproject.evaluation.model.EvalGroupNodes;
+import org.sakaiproject.evaluation.model.EvalTemplateItem;
+import org.sakaiproject.evaluation.providers.EvalHierarchyProvider;
+import org.sakaiproject.exception.IdUnusedException;
+import org.sakaiproject.genericdao.api.search.Order;
+import org.sakaiproject.genericdao.api.search.Restriction;
+import org.sakaiproject.genericdao.api.search.Search;
+import org.sakaiproject.hierarchy.HierarchyService;
+import org.sakaiproject.hierarchy.model.HierarchyNode;
+import org.sakaiproject.hierarchy.utils.HierarchyUtils;
+import org.sakaiproject.memory.api.Cache;
+import org.sakaiproject.memory.api.MemoryService;
+import org.sakaiproject.site.api.SiteService;
+import org.sakaiproject.site.api.Site;
 
 /**
  * Allows Evaluation to interface with an external hierarchy system,

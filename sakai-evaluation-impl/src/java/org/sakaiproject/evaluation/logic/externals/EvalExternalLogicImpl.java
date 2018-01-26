@@ -14,42 +14,112 @@
  */
 package org.sakaiproject.evaluation.logic.externals;
 
-import org.apache.commons.lang.*;
-import org.apache.commons.logging.*;
-import org.quartz.*;
-import org.quartz.impl.matchers.*;
-import org.sakaiproject.api.app.scheduler.*;
-import org.sakaiproject.authz.api.*;
-import org.sakaiproject.cluster.api.*;
+import java.io.Serializable;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
+import java.util.UUID;
+
+import javax.mail.internet.AddressException;
+import javax.mail.internet.InternetAddress;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.BooleanUtils;
+
+import org.quartz.CronScheduleBuilder;
+import org.quartz.CronTrigger;
+import org.quartz.Job;
+import org.quartz.JobBuilder;
+import org.quartz.JobDataMap;
+import org.quartz.JobDetail;
+import org.quartz.JobKey;
+import org.quartz.Scheduler;
+import org.quartz.SchedulerException;
+import org.quartz.Trigger;
+import org.quartz.TriggerBuilder;
+import org.quartz.TriggerKey;
+import org.quartz.impl.matchers.GroupMatcher;
+import org.sakaiproject.api.app.scheduler.DelayedInvocation;
+import org.sakaiproject.api.app.scheduler.ScheduledInvocationManager;
+import org.sakaiproject.api.app.scheduler.SchedulerManager;
+import org.sakaiproject.authz.api.AuthzGroupService;
+import org.sakaiproject.authz.api.FunctionManager;
+import org.sakaiproject.authz.api.Role;
+import org.sakaiproject.authz.api.SecurityService;
+import org.sakaiproject.cluster.api.ClusterService;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.component.cover.ComponentManager;
-import org.sakaiproject.content.api.*;
-import org.sakaiproject.coursemanagement.api.*;
-import org.sakaiproject.coursemanagement.api.exception.*;
-import org.sakaiproject.coursemanagement.impl.provider.*;
-import org.sakaiproject.email.api.*;
-import org.sakaiproject.entity.api.*;
-import org.sakaiproject.entitybroker.*;
-import org.sakaiproject.evaluation.constant.*;
-import org.sakaiproject.evaluation.dao.*;
-import org.sakaiproject.evaluation.logic.entity.*;
-import org.sakaiproject.evaluation.logic.model.*;
-import org.sakaiproject.evaluation.model.*;
-import org.sakaiproject.evaluation.providers.*;
+import org.sakaiproject.content.api.ContentHostingService;
+import org.sakaiproject.content.api.ContentResource;
+import org.sakaiproject.coursemanagement.api.CourseManagementService;
+import org.sakaiproject.coursemanagement.api.Section;
+import org.sakaiproject.coursemanagement.api.exception.IdNotFoundException;
+import org.sakaiproject.coursemanagement.impl.provider.SectionRoleResolver;
+import org.sakaiproject.email.api.EmailService;
+import org.sakaiproject.entity.api.EntityManager;
+import org.sakaiproject.entity.api.EntityPropertyNotDefinedException;
+import org.sakaiproject.entity.api.EntityPropertyTypeException;
+import org.sakaiproject.entity.api.Reference;
+import org.sakaiproject.entitybroker.EntityBroker;
+import org.sakaiproject.entitybroker.EntityReference;
+import org.sakaiproject.entitybroker.entityprovider.search.Order;
+import org.sakaiproject.entitybroker.entityprovider.search.Restriction;
+import org.sakaiproject.entitybroker.entityprovider.search.Search;
+import org.sakaiproject.evaluation.constant.EvalConstants;
+import org.sakaiproject.evaluation.logic.entity.AssignGroupEntityProvider;
+import org.sakaiproject.evaluation.logic.entity.ConfigEntityProvider;
+import org.sakaiproject.evaluation.logic.entity.EvaluationEntityProvider;
+import org.sakaiproject.evaluation.logic.entity.ItemEntityProvider;
+import org.sakaiproject.evaluation.logic.entity.TemplateEntityProvider;
+import org.sakaiproject.evaluation.logic.entity.TemplateItemEntityProvider;
+import org.sakaiproject.evaluation.logic.model.EvalGroup;
+import org.sakaiproject.evaluation.logic.model.EvalScheduledJob;
+import org.sakaiproject.evaluation.logic.model.EvalUser;
+import org.sakaiproject.evaluation.logic.model.HierarchyNodeRule;
+import org.sakaiproject.evaluation.model.EvalAssignGroup;
+import org.sakaiproject.evaluation.model.EvalAssignHierarchy;
+import org.sakaiproject.evaluation.model.EvalConfig;
+import org.sakaiproject.evaluation.model.EvalEvaluation;
+import org.sakaiproject.evaluation.model.EvalItem;
+import org.sakaiproject.evaluation.model.EvalResponse;
+import org.sakaiproject.evaluation.model.EvalScale;
+import org.sakaiproject.evaluation.model.EvalTemplate;
+import org.sakaiproject.evaluation.model.EvalTemplateItem;
+import org.sakaiproject.evaluation.providers.EvalGroupsProvider;
 import org.sakaiproject.evaluation.utils.ArrayUtils;
-import org.sakaiproject.exception.*;
-import org.sakaiproject.site.api.*;
-import org.sakaiproject.time.api.*;
-import org.sakaiproject.tool.api.*;
-import org.sakaiproject.user.api.*;
-import org.sakaiproject.util.*;
-
-import javax.mail.internet.*;
-import java.io.*;
-import java.lang.reflect.*;
-import java.security.*;
-import java.util.*;
-import java.util.Map.*;
+import org.sakaiproject.exception.IdUnusedException;
+import org.sakaiproject.javax.PagingPosition;
+import org.sakaiproject.site.api.Group;
+import org.sakaiproject.site.api.Site;
+import org.sakaiproject.site.api.SitePage;
+import org.sakaiproject.site.api.SiteService;
+import org.sakaiproject.site.api.ToolConfiguration;
+import org.sakaiproject.tool.api.Session;
+import org.sakaiproject.tool.api.SessionManager;
+import org.sakaiproject.tool.api.ToolManager;
+import org.sakaiproject.user.api.User;
+import org.sakaiproject.user.api.UserDirectoryService;
+import org.sakaiproject.user.api.UserNotDefinedException;
+import org.sakaiproject.util.FormattedText;
+import org.sakaiproject.util.ResourceLoader;
+import org.sakaiproject.evaluation.dao.EvalHierarchyRuleSupport;
+import org.sakaiproject.exception.PermissionException;
+import org.sakaiproject.exception.ServerOverloadException;
+import org.sakaiproject.exception.TypeException;
 
 
 /**
@@ -441,44 +511,6 @@ public class EvalExternalLogicImpl implements EvalExternalLogic {
         // current user.... terrible -AZ
         return new ResourceLoader().getLocale();
     }
-
-
-    /* (non-Javadoc)
-     * @see org.sakaiproject.evaluation.logic.externals.ExternalEvalGroups#makeEvalGroupObjectsForSectionAwareness(java.lang.String, org.sakaiproject.evaluation.logic.model.EvalHierarchyNode )
-     */
-    
-    //ZCII-2959: Changer les titres des évaluations pour tenir compte des sections
-    
-    public List<EvalGroup> makeEvalGroupObjectsForSectionAwareness( String evalGroupId, EvalHierarchyNode parentNode ){
-    	List<EvalGroup> groups = makeEvalGroupObjectsForSectionAwareness(evalGroupId);
-    	String sectionId, typeEvaluation;
-    	Section section;
-    	List<EvalGroup> removeGroups = new ArrayList<EvalGroup>();
-    	for (EvalGroup evalGroup: groups){
-    		if (EvalConstants.GROUP_TYPE_SECTION.equalsIgnoreCase(evalGroup.type)){
-    			sectionId = evalGroup.evalGroupId.substring( evalGroup.evalGroupId.indexOf( EvalConstants.GROUP_ID_SECTION_PREFIX ) 
-                        + EvalConstants.GROUP_ID_SECTION_PREFIX.length() ) ;
-                if (sectionId != null &&
-                        !sectionId.substring(sectionId.length() - 2).equals("00") &&
-                        !sectionId.substring(sectionId.length() - 3).startsWith("DF")) {
-                    section = courseManagementService.getSection(sectionId);
-                    typeEvaluation = (section.getTypeEvaluation() == null ? "par défaut" : section.getTypeEvaluation());
-                    if (!typeEvaluation.equalsIgnoreCase(parentNode.title))
-                        removeGroups.add(evalGroup);
-                }
-    		}
-
-    	}
-    	
-    	//Remove groups
-    	for (EvalGroup evalGroup: removeGroups){
-    		groups.remove(evalGroup);
-    	}
-
-    	return groups;
-    }
-    
-    // End ZCII-2959: Changer les titres des évaluations pour tenir compte des sections
 
     
     /* (non-Javadoc)

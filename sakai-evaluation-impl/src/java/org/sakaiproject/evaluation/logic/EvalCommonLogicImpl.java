@@ -31,14 +31,12 @@ import java.util.Set;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.quartz.Job;
-import org.sakaiproject.coursemanagement.api.Section;
 import org.sakaiproject.evaluation.constant.EvalConstants;
 import org.sakaiproject.evaluation.dao.EvalAdhocSupport;
 import org.sakaiproject.evaluation.dao.EvalAdminSupport;
 import org.sakaiproject.evaluation.logic.externals.EvalExternalLogic;
 import org.sakaiproject.evaluation.logic.externals.EvalExternalLogicImpl;
 import org.sakaiproject.evaluation.logic.model.EvalGroup;
-import org.sakaiproject.evaluation.logic.model.EvalHierarchyNode;
 import org.sakaiproject.evaluation.logic.model.EvalScheduledJob;
 import org.sakaiproject.evaluation.logic.model.EvalUser;
 import org.sakaiproject.evaluation.model.EvalAdhocGroup;
@@ -346,19 +344,6 @@ public class EvalCommonLogicImpl implements EvalCommonLogic {
 	public String getMyWorkspaceDashboard(String userId) {
 		return this.externalLogic.getMyWorkspaceDashboard(userId);
 	}
-
-    /* (non-Javadoc)
-     * @see org.sakaiproject.evaluation.logic.externals.ExternalEvalGroups#makeEvalGroupObjectsForSectionAwareness(java.lang.String, org.sakaiproject.evaluation.logic.model.EvalHierarchyNode )
-     */
-	
-    //ZCII-2959: Changer les titres des évaluations pour tenir compte des sections
-
-    public List<EvalGroup> makeEvalGroupObjectsForSectionAwareness( String evalGroupId, EvalHierarchyNode parentNode ){
-    	return externalLogic.makeEvalGroupObjectsForSectionAwareness( evalGroupId, parentNode );
-    }
-    
-    //End ZCII-2959: Changer les titres des évaluations pour tenir compte des sections
-
 
     /*
     * (non-Javadoc)
