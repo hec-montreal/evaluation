@@ -38,7 +38,6 @@ import javax.mail.internet.InternetAddress;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang3.BooleanUtils;
 
 import org.quartz.CronScheduleBuilder;
 import org.quartz.CronTrigger;
@@ -108,6 +107,7 @@ import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SitePage;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.site.api.ToolConfiguration;
+import org.sakaiproject.time.api.TimeService;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.ToolManager;
@@ -223,11 +223,12 @@ public class EvalExternalLogicImpl implements EvalExternalLogic {
     public void setScheduledInvocationManager(ScheduledInvocationManager scheduledInvocationManager) {
         this.scheduledInvocationManager = scheduledInvocationManager;
     }
-
+    
     protected TimeService timeService;
     public void setTimeService(TimeService timeService) {
         this.timeService = timeService;
     }
+
 
     protected ClusterService clusterService;
     public void setClusterService(ClusterService clusterService) {
@@ -537,6 +538,7 @@ public class EvalExternalLogicImpl implements EvalExternalLogic {
             {
                 try
                 {
+                    //ZCII-PERSO - ZCII-3227: For an evaluation section-aware, remove DF sections and 00 sections
                     if (sectionID != null &&
                             !sectionID.substring(sectionID.length() - 2).equals("00") &&
                             !sectionID.substring(sectionID.length() - 3).startsWith("DF")) {
@@ -591,6 +593,7 @@ public class EvalExternalLogicImpl implements EvalExternalLogic {
                         // Loop through the section IDs, if one matches the section ID contained in the evalGroupID, create an EvalGroup object for it
                         for( String secID : sectionIds )
                         {
+                            //ZCII-PERSO - ZCII-3227: For an evaluation section-aware, remove DF sections and 00 sections
                             if (secID != null &&
                                 !secID.substring(secID.length() - 2).equals("00") &&
                                 !secID.substring(secID.length() - 3).startsWith("DF")) {

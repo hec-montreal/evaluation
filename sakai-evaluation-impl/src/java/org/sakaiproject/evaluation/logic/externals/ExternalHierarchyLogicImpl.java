@@ -154,6 +154,7 @@ public class ExternalHierarchyLogicImpl implements ExternalHierarchyLogic {
             {
                 sectionId = evalGroupID.substring( evalGroupID.indexOf( EvalConstants.GROUP_ID_SECTION_PREFIX )
                         + EvalConstants.GROUP_ID_SECTION_PREFIX.length()  );
+				//ZCII-PERSO - ZCII-3227: For an evaluation section-aware, remove DF sections and 00 sections
                 if (sectionId != null &&
                         !sectionId.substring(sectionId.length() - 2).equals("00") &&
                         !sectionId.substring(sectionId.length() - 3).startsWith("DF")) {
@@ -169,6 +170,7 @@ public class ExternalHierarchyLogicImpl implements ExternalHierarchyLogic {
                 Set<String> sectionIDs = authzGroupService.getProviderIds( realmID );
                 for( String secID : sectionIDs )
                 {
+				//ZCII-PERSO - ZCII-3227: For an evaluation section-aware, remove DF sections and 00 sections
                     if (secID != null &&
                             !secID.substring(secID.length() - 2).equals("00") &&
                             !secID.substring(secID.length() - 3).startsWith("DF")) {
@@ -632,6 +634,7 @@ public class ExternalHierarchyLogicImpl implements ExternalHierarchyLogic {
 
                     for( String sectionID : realmSectionIDs.get( realmID ) )
                     {
+						//ZCII-PERSO - ZCII-3227: For an evaluation section-aware, remove DF sections and 00 sections
                         if (sectionID != null &&
                                 !sectionID.substring(sectionID.length() - 2).equals("00") &&
                                 !sectionID.substring(sectionID.length() - 3).startsWith("DF")) {
