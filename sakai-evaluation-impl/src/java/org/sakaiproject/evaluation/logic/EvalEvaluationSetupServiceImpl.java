@@ -1465,17 +1465,21 @@ public class EvalEvaluationSetupServiceImpl implements EvalEvaluationSetupServic
             Set<String> allNodeIds = hierarchyLogic.getAllChildrenNodes(nodes, true);
             allNodeIds.addAll(currentNodeIds);
 
-            //ZCII-3203: make hierarchy node selection section aware
             Map<String, Set<String>> allEvalGroupIds = new HashMap<String, Set<String>> ();
-            Set<String> evalGroups;
+           Set<String> evalGroups;
             Set<String> sectionAwareEvalGroups = new HashSet<String>();
 
-            if (eval.getSectionAwareness()){
-                for (String nodeid: allNodeIds){
-                evalGroups =  hierarchyLogic.getEvalGroupsForNode(nodeid);
+            //For an evaluation section-aware, once all the nodes are retrieved
+            //transform the site related evalGroups into section related evalGroups
+            //whether the node is rule based or external hierarchy based
+            if (eval.getSectionAwareness() )
+            {
+                for (String nodeid: allNodeIds)
+                {
+                    evalGroups = hierarchyLogic.getEvalGroupsForNode(nodeid);
 
                     sectionAwareEvalGroups = new HashSet<String>();
-                    for (String evalGroupId: evalGroups) {
+                    for (String evalGroupId : evalGroups) {
                         for (EvalGroup evalGroup : externalLogic.makeEvalGroupObjectsForSectionAwareness(evalGroupId)) {
                             sectionAwareEvalGroups.add(evalGroup.evalGroupId);
                         }
@@ -1483,12 +1487,11 @@ public class EvalEvaluationSetupServiceImpl implements EvalEvaluationSetupServic
                     allEvalGroupIds.put(nodeid, sectionAwareEvalGroups);
                 }
             }else{
+            	//Otherwise just get the evalGroups of the nodes
                 allEvalGroupIds = hierarchyLogic.getEvalGroupsForNodes(allNodeIds.toArray(new String[]{}));
             }
-            //End ZCII-3203
 
-
-            // now eliminate the evalgroupids from the evalGroupIds array which happen to be contained in the nodes,
+             // now eliminate the evalgroupids from the evalGroupIds array which happen to be contained in the nodes,
             // this leaves us with only the group ids which are not contained in the nodes which are already assigned
             for (Set<String> egIds : allEvalGroupIds.values()) {
                 evalGroupIdsSet.removeAll(egIds);
