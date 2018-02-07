@@ -14,19 +14,49 @@
  */
 package org.sakaiproject.evaluation.logic;
 
-import org.apache.commons.logging.*;
-import org.sakaiproject.component.cover.*;
-import org.sakaiproject.evaluation.beans.*;
-import org.sakaiproject.evaluation.constant.*;
-import org.sakaiproject.evaluation.dao.*;
-import org.sakaiproject.evaluation.logic.exceptions.*;
-import org.sakaiproject.evaluation.logic.externals.*;
-import org.sakaiproject.evaluation.logic.model.*;
-import org.sakaiproject.evaluation.model.*;
-import org.sakaiproject.evaluation.utils.*;
-import org.sakaiproject.genericdao.api.search.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.GregorianCalendar;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Random;
+import java.util.Set;
+import java.util.Timer;
+import java.util.TimerTask;
 
-import java.util.*;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.component.cover.ServerConfigurationService;
+import org.sakaiproject.evaluation.beans.EvalBeanUtils;
+import org.sakaiproject.evaluation.constant.EvalConstants;
+import org.sakaiproject.evaluation.dao.EvaluationDao;
+import org.sakaiproject.evaluation.logic.exceptions.BlankRequiredFieldException;
+import org.sakaiproject.evaluation.logic.exceptions.InvalidDatesException;
+import org.sakaiproject.evaluation.logic.externals.EvalExternalLogic;
+import org.sakaiproject.evaluation.logic.externals.EvalJobLogic;
+import org.sakaiproject.evaluation.logic.externals.EvalSecurityChecksImpl;
+import org.sakaiproject.evaluation.logic.externals.ExternalHierarchyLogic;
+import org.sakaiproject.evaluation.logic.model.EvalGroup;
+import org.sakaiproject.evaluation.logic.model.EvalHierarchyNode;
+import org.sakaiproject.evaluation.logic.model.EvalUser;
+import org.sakaiproject.evaluation.model.EvalAdhocGroup;
+import org.sakaiproject.evaluation.model.EvalAssignGroup;
+import org.sakaiproject.evaluation.model.EvalAssignHierarchy;
+import org.sakaiproject.evaluation.model.EvalAssignUser;
+import org.sakaiproject.evaluation.model.EvalEmailTemplate;
+import org.sakaiproject.evaluation.model.EvalEvaluation;
+import org.sakaiproject.evaluation.model.EvalResponse;
+import org.sakaiproject.evaluation.model.EvalTemplate;
+import org.sakaiproject.evaluation.utils.ArrayUtils;
+import org.sakaiproject.evaluation.utils.EvalUtils;
+import org.sakaiproject.genericdao.api.search.Order;
+import org.sakaiproject.genericdao.api.search.Restriction;
+import org.sakaiproject.genericdao.api.search.Search;
 
 /**
  * Implementation for EvalEvaluationSetupService
