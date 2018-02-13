@@ -93,31 +93,26 @@ public class HumanDateRenderer {
         ResourceProperties properties;
         
         if (group != null) {
-            // ZCII-2385 : we must use the title property from the site rather than the actual title
+            // ZCII-PERSO : from ZCII-2386 & ZCII-2959 
+        	// Use the title of the site in its properties
+        	// Used in the evaluation dashboard of the student, instructor and admin 
             try {
-                siteid = group.evalGroupId.substring(group.evalGroupId.lastIndexOf('/')+1);
+            	
+            	if ((null == groupTitle || groupTitle.equals((""))) && (group.evalGroupId.contains("/section/"))) {
+	            	siteid = group.evalGroupId.substring(6, group.evalGroupId.indexOf("/section/"));
+            	} else {
+            		siteid = group.evalGroupId.substring(group.evalGroupId.lastIndexOf('/')+1);
+            	}
                 site = SiteService.getSite(siteid);
                 properties = site.getProperties();
                 groupTitle = properties.getProperty("title");
 
-	            
-            } catch (IdUnusedException e) {
-                // We'll use the group title rather than find it in the site properties. 
-            }
-            
-            try{
-            
-	            if ((null == groupTitle || groupTitle.equals((""))) && (group.evalGroupId.contains("/section/"))) {
-	            	siteid = group.evalGroupId.substring(6, group.evalGroupId.indexOf("/section/"));
-	                site = SiteService.getSite(siteid);
-	                properties = site.getProperties();
-	                groupTitle = siteid + " - " +  properties.getProperty("title");
-	            }
             }catch (IdUnusedException e) {
                 // We'll use the group title rather than find it in the site properties. 
             	 groupTitle = group.title;
             }
             
+            // End ZCII-PERSO 
             
             groupType = group.type;
         }

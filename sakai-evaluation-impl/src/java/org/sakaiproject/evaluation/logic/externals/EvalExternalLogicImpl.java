@@ -38,6 +38,7 @@ import javax.mail.internet.InternetAddress;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.commons.lang.StringUtils;
+
 import org.quartz.CronScheduleBuilder;
 import org.quartz.CronTrigger;
 import org.quartz.Job;
@@ -74,6 +75,9 @@ import org.sakaiproject.entity.api.EntityPropertyTypeException;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entitybroker.EntityBroker;
 import org.sakaiproject.entitybroker.EntityReference;
+import org.sakaiproject.entitybroker.entityprovider.search.Order;
+import org.sakaiproject.entitybroker.entityprovider.search.Restriction;
+import org.sakaiproject.entitybroker.entityprovider.search.Search;
 import org.sakaiproject.evaluation.constant.EvalConstants;
 import org.sakaiproject.evaluation.logic.entity.AssignGroupEntityProvider;
 import org.sakaiproject.evaluation.logic.entity.ConfigEntityProvider;
@@ -82,7 +86,6 @@ import org.sakaiproject.evaluation.logic.entity.ItemEntityProvider;
 import org.sakaiproject.evaluation.logic.entity.TemplateEntityProvider;
 import org.sakaiproject.evaluation.logic.entity.TemplateItemEntityProvider;
 import org.sakaiproject.evaluation.logic.model.EvalGroup;
-import org.sakaiproject.evaluation.logic.model.EvalHierarchyNode;
 import org.sakaiproject.evaluation.logic.model.EvalScheduledJob;
 import org.sakaiproject.evaluation.logic.model.EvalUser;
 import org.sakaiproject.evaluation.logic.model.HierarchyNodeRule;
@@ -98,6 +101,7 @@ import org.sakaiproject.evaluation.model.EvalTemplateItem;
 import org.sakaiproject.evaluation.providers.EvalGroupsProvider;
 import org.sakaiproject.evaluation.utils.ArrayUtils;
 import org.sakaiproject.exception.IdUnusedException;
+import org.sakaiproject.javax.PagingPosition;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SitePage;
@@ -219,11 +223,12 @@ public class EvalExternalLogicImpl implements EvalExternalLogic {
     public void setScheduledInvocationManager(ScheduledInvocationManager scheduledInvocationManager) {
         this.scheduledInvocationManager = scheduledInvocationManager;
     }
-
+    
     protected TimeService timeService;
     public void setTimeService(TimeService timeService) {
         this.timeService = timeService;
     }
+
 
     protected ClusterService clusterService;
     public void setClusterService(ClusterService clusterService) {
@@ -508,39 +513,6 @@ public class EvalExternalLogicImpl implements EvalExternalLogic {
         return new ResourceLoader().getLocale();
     }
 
-
-    /* (non-Javadoc)
-     * @see org.sakaiproject.evaluation.logic.externals.ExternalEvalGroups#makeEvalGroupObjectsForSectionAwareness(java.lang.String, org.sakaiproject.evaluation.logic.model.EvalHierarchyNode )
-     */
-    
-    //ZCII-2959: Changer les titres des évaluations pour tenir compte des sections
-    
-    public List<EvalGroup> makeEvalGroupObjectsForSectionAwareness( String evalGroupId, EvalHierarchyNode parentNode ){
-    	List<EvalGroup> groups = makeEvalGroupObjectsForSectionAwareness(evalGroupId);
-    	String sectionId, typeEvaluation;
-    	Section section;
-    	List<EvalGroup> removeGroups = new ArrayList<EvalGroup>();
-    	for (EvalGroup evalGroup: groups){
-    		if (EvalConstants.GROUP_TYPE_SECTION.equalsIgnoreCase(evalGroup.type)){
-    			sectionId = evalGroup.evalGroupId.substring( evalGroup.evalGroupId.indexOf( EvalConstants.GROUP_ID_SECTION_PREFIX ) 
-                        + EvalConstants.GROUP_ID_SECTION_PREFIX.length() ) ;
-    			section = courseManagementService.getSection(sectionId);
-    			typeEvaluation = (section.getTypeEvaluation()==null? "par défaut": section.getTypeEvaluation());
-    			if (!typeEvaluation.equalsIgnoreCase(parentNode.title))
-    				removeGroups.add(evalGroup);
-    		}
-    	}
-    	
-    	//Remove groups
-    	for (EvalGroup evalGroup: removeGroups){
-    		groups.remove(evalGroup);
-    	}
-
-    	return groups;
-    }
-    
-    // End ZCII-2959: Changer les titres des évaluations pour tenir compte des sections
-
     
     /* (non-Javadoc)
      * @see org.sakaiproject.evaluation.logic.externals.ExternalEvalGroups#makeEvalGroupObjectsForSectionAwareness(java.lang.String)
@@ -566,11 +538,16 @@ public class EvalExternalLogicImpl implements EvalExternalLogic {
             {
                 try
                 {
-                    Section section = courseManagementService.getSection( sectionID );
-                    Site site = siteService.getSite(evalGroupId.replace( EvalConstants.GROUP_ID_SITE_PREFIX, "" ));
-                    EvalGroup group = new EvalGroup( evalGroupId + EvalConstants.GROUP_ID_SECTION_PREFIX + sectionID, 
-                          site.getTitle()   + " - " + section.getTitle(), getContextType( SAKAI_SECTION_TYPE ) );
-                    groups.add( group );
+                    //ZCII-PERSO - ZCII-3227: For an evaluation section-aware, remove DF sections and 00 sections
+                    if (sectionID != null &&
+                            !sectionID.substring(sectionID.length() - 2).equals("00") &&
+                            !sectionID.substring(sectionID.length() - 3).startsWith("DF")) {
+                        Section section = courseManagementService.getSection(sectionID);
+                        Site site = siteService.getSite(evalGroupId.replace(EvalConstants.GROUP_ID_SITE_PREFIX, ""));
+                        EvalGroup group = new EvalGroup(evalGroupId + EvalConstants.GROUP_ID_SECTION_PREFIX + sectionID,
+                                site.getTitle() + " - " + section.getTitle(), getContextType(SAKAI_SECTION_TYPE));
+                        groups.add(group);
+                    }
                 }
                 catch( IdNotFoundException ex ) { LOG.debug( "Could not find section with ID = " + sectionID, ex ); }
             }
@@ -616,9 +593,13 @@ public class EvalExternalLogicImpl implements EvalExternalLogic {
                         // Loop through the section IDs, if one matches the section ID contained in the evalGroupID, create an EvalGroup object for it
                         for( String secID : sectionIds )
                         {
-                            if( secID.equalsIgnoreCase( sectionID ) )
-                            {
-                                c = new EvalGroup( evalGroupId, courseManagementService.getSection( secID ).getTitle(), getContextType( SAKAI_SECTION_TYPE ) );
+                            //ZCII-PERSO - ZCII-3227: For an evaluation section-aware, remove DF sections and 00 sections
+                            if (secID != null &&
+                                !secID.substring(secID.length() - 2).equals("00") &&
+                                !secID.substring(secID.length() - 3).startsWith("DF")) {
+                                    if (secID.equalsIgnoreCase(sectionID)) {
+                                        c = new EvalGroup(evalGroupId, courseManagementService.getSection(secID).getTitle(), getContextType(SAKAI_SECTION_TYPE));
+                                    }
                             }
                         }
                     }
@@ -902,17 +883,28 @@ public class EvalExternalLogicImpl implements EvalExternalLogic {
         {
             try
             {
-                // Get all roles for the site
+                //ZCII-PERSO - ZCII-3203: make hierarchy node selection section aware
+            	//ZCII-PERSO - Check user permission in the group not in the site
+                // Get all roles for the section
                 Site site = siteService.getSite( groupID.getSiteID() );
-                Set<Role> siteRoles = site.getRoles();
-                List<String> siteRolesWithPerm = new ArrayList<>( siteRoles.size() );
+                Group selectedGroup = null;
+                for (Group group: site.getGroups()){
+                    if (group.getProviderGroupId() != null && group.getProviderGroupId().equalsIgnoreCase(groupID.sectionID)){
+                        selectedGroup = group;
+                        break;
+                    }
+
+                }
+                Set<Role> sectionRoles = selectedGroup.getRoles();
+                List<String> sectionRolesWithPerm = new ArrayList<>( sectionRoles.size() );
+                //End ZCII-PERSO - ZCII-3203
 
                 // Determine which roles have the given permission
-                for( Role role : siteRoles )
+                for( Role role : sectionRoles )
                 {
                     if( role.getAllowedFunctions().contains( permission ) )
                     {
-                        siteRolesWithPerm.add( role.getId() );
+                        sectionRolesWithPerm.add( role.getId() );
                     }
                 }
 
@@ -923,7 +915,7 @@ public class EvalExternalLogicImpl implements EvalExternalLogic {
                 // Loop through the user role map; if the user's section role is in the list of site roles with the permission, add the user to the list
                 for( Entry<String, String> userRoleEntry : userRoleMap.entrySet() )
                 {
-                    if( siteRolesWithPerm.contains( userRoleEntry.getValue() ) )
+                    if( sectionRolesWithPerm.contains( userRoleEntry.getValue() ) )
                     {
                         String userEID;
                         try { userEID = userDirectoryService.getUserId( userRoleEntry.getKey() ); }
@@ -938,6 +930,7 @@ public class EvalExternalLogicImpl implements EvalExternalLogic {
             }
             catch( IdUnusedException ex ) { LOG.warn( "Could not find site with ID = " + groupID.getSiteID(), ex ); }
             catch( IdNotFoundException ex ) { LOG.warn( "Could not find section with ID = " + groupID.getSectionID(), ex ); }
+
         }
 
         // Return the user IDs

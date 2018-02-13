@@ -44,6 +44,8 @@ import org.sakaiproject.genericdao.api.search.Search;
 import org.sakaiproject.hierarchy.HierarchyService;
 import org.sakaiproject.hierarchy.model.HierarchyNode;
 import org.sakaiproject.hierarchy.utils.HierarchyUtils;
+import org.sakaiproject.memory.api.Cache;
+import org.sakaiproject.memory.api.MemoryService;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.site.api.Site;
 
@@ -146,12 +148,18 @@ public class ExternalHierarchyLogicImpl implements ExternalHierarchyLogic {
         {
             // Get the site ID
             String siteID = evalGroupID.replace( EvalConstants.GROUP_ID_SITE_PREFIX, "" );
-
+            String sectionId;
             // If the evalGroup is pointing to a single section, get the single session, add it to the list and return
             if( isSingleSection )
             {
-                sections.add( courseManagementService.getSection( evalGroupID.substring( evalGroupID.indexOf( EvalConstants.GROUP_ID_SECTION_PREFIX ) 
-                                                                                         + EvalConstants.GROUP_ID_SECTION_PREFIX.length() ) ) );
+                sectionId = evalGroupID.substring( evalGroupID.indexOf( EvalConstants.GROUP_ID_SECTION_PREFIX )
+                        + EvalConstants.GROUP_ID_SECTION_PREFIX.length()  );
+				//ZCII-PERSO - ZCII-3227: For an evaluation section-aware, remove DF sections and 00 sections
+                if (sectionId != null &&
+                        !sectionId.substring(sectionId.length() - 2).equals("00") &&
+                        !sectionId.substring(sectionId.length() - 3).startsWith("DF")) {
+                    sections.add(courseManagementService.getSection(sectionId));
+                }
             }
 
             // Otherwise, the evalGroup is pointing at a site...
@@ -162,7 +170,12 @@ public class ExternalHierarchyLogicImpl implements ExternalHierarchyLogic {
                 Set<String> sectionIDs = authzGroupService.getProviderIds( realmID );
                 for( String secID : sectionIDs )
                 {
-                    sections.add( courseManagementService.getSection( secID ) );
+				//ZCII-PERSO - ZCII-3227: For an evaluation section-aware, remove DF sections and 00 sections
+                    if (secID != null &&
+                            !secID.substring(secID.length() - 2).equals("00") &&
+                            !secID.substring(secID.length() - 3).startsWith("DF")) {
+                        sections.add(courseManagementService.getSection(secID));
+                    }
                 }
             }
         }
@@ -503,7 +516,10 @@ public class ExternalHierarchyLogicImpl implements ExternalHierarchyLogic {
             // Hierarchy rules should be obeyed regardless of if an external provider is present or not (supplemental)
             for( String nodeID : nodeIds )
             {
-                m.put( nodeID, getEvalGroupsForNodeSectionAware( nodeID ) );
+                Set<String> evalGroupsForNodeSectionAware = getEvalGroupsForNodeSectionAware(nodeID);
+                if (!evalGroupsForNodeSectionAware.isEmpty()) {
+                    m.put(nodeID, evalGroupsForNodeSectionAware);
+                }
             }
         }
         return m;
@@ -618,11 +634,17 @@ public class ExternalHierarchyLogicImpl implements ExternalHierarchyLogic {
 
                     for( String sectionID : realmSectionIDs.get( realmID ) )
                     {
-                        Section section = courseManagementService.getSection( sectionID );
-                        String courseOfferingTitle = courseManagementService.getCourseOffering(section.getCourseOfferingEid()).getTitle();
-                        if( siteOrSectionTitleSatisfiesRule( courseOfferingTitle + " - " + section.getTitle(), qualifier, rawRuleText ) )
-                        {
-                            nodeID = rule.getNodeID().toString();
+						//ZCII-PERSO - ZCII-3227: For an evaluation section-aware, remove DF sections and 00 sections
+                        if (sectionID != null &&
+                                !sectionID.substring(sectionID.length() - 2).equals("00") &&
+                                !sectionID.substring(sectionID.length() - 3).startsWith("DF")) {
+                            Section section = courseManagementService.getSection(sectionID);
+                            String courseOfferingTitle = courseManagementService.getCourseOffering(section.getCourseOfferingEid()).getTitle();
+                            if (siteOrSectionTitleSatisfiesRule(section.getTitle(), qualifier, rawRuleText))
+                            //if( siteOrSectionTitleSatisfiesRule( courseOfferingTitle + " - " + section.getTitle(), qualifier, rawRuleText ) )
+                            {
+                                nodeID = rule.getNodeID().toString();
+                            }
                         }
                     }
                 }
