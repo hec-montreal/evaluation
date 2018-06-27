@@ -895,8 +895,14 @@ public class EvalExternalLogicImpl implements EvalExternalLogic {
                     }
 
                 }
+
+                if (selectedGroup == null) {
+                    throw new IdNotFoundException("No group with given provider id in site");
+                }
+
                 Set<Role> sectionRoles = selectedGroup.getRoles();
                 List<String> sectionRolesWithPerm = new ArrayList<>( sectionRoles.size() );
+
                 //End ZCII-PERSO - ZCII-3203
 
                 // Determine which roles have the given permission
