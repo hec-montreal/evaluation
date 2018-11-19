@@ -13,6 +13,7 @@
  * permissions and limitations under the License.
  */
 
+// ZCII-3536 : afficher le bon lien selon la langue
 evalsys.showCriticismLink = function() {
 	if (sakai.locale.userLanguage === "fr" || sakai.locale.userLanguage === "es") {
 		$('.criticismLinkFr').show();
