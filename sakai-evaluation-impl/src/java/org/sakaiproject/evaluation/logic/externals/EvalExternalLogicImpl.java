@@ -525,10 +525,16 @@ public class EvalExternalLogicImpl implements EvalExternalLogic {
             {
                 try
                 {
-                    Section section = courseManagementService.getSection( sectionID );
-                    EvalGroup group = new EvalGroup( evalGroupId + EvalConstants.GROUP_ID_SECTION_PREFIX + sectionID, 
-                            section.getTitle(), getContextType( SAKAI_SECTION_TYPE ) );
-                    groups.add( group );
+                    //ZCII-PERSO - ZCII-3227: For an evaluation section-aware, remove DF sections and 00 sections
+                    if (sectionID != null &&
+                            !sectionID.substring(sectionID.length() - 2).equals("00") &&
+                            !sectionID.substring(sectionID.length() - 3).startsWith("DF")) {
+                        Section section = courseManagementService.getSection(sectionID);
+                        Site site = siteService.getSite(evalGroupId.replace(EvalConstants.GROUP_ID_SITE_PREFIX, ""));
+                        EvalGroup group = new EvalGroup(evalGroupId + EvalConstants.GROUP_ID_SECTION_PREFIX + sectionID,
+                                site.getTitle() + " - " + section.getTitle(), getContextType(SAKAI_SECTION_TYPE));
+                        groups.add(group);
+                    }
                 }
                 catch( IdNotFoundException ex ) { log.debug( "Could not find section with ID = " + sectionID, ex ); }
             }
@@ -574,10 +580,15 @@ public class EvalExternalLogicImpl implements EvalExternalLogic {
                         // Loop through the section IDs, if one matches the section ID contained in the evalGroupID, create an EvalGroup object for it
                         for( String secID : sectionIds )
                         {
-                            if( secID.equalsIgnoreCase( sectionID ) )
-                            {
-                                c = new EvalGroup( evalGroupId, courseManagementService.getSection( secID ).getTitle(), getContextType( SAKAI_SECTION_TYPE ) );
+                            // ZCII-3227
+                            if (secID != null &&
+                                !secID.substring(secID.length() - 2).equals("00") &&
+                                !secID.substring(secID.length() - 3).startsWith("DF")) {
+                                    if (secID.equalsIgnoreCase(sectionID)) {
+                                        c = new EvalGroup(evalGroupId, courseManagementService.getSection(secID).getTitle(), getContextType(SAKAI_SECTION_TYPE));
+                                    }
                             }
+                            // end ZCII-3227
                         }
                     }
                     catch( Exception ex ) { c = null; }
