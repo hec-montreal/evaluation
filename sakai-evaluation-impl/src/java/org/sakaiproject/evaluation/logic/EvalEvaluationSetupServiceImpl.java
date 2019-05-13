@@ -791,12 +791,24 @@ public class EvalEvaluationSetupServiceImpl implements EvalEvaluationSetupServic
         }
 
         // TODO Shouldn't this actually get the list of groups based on the set of assigned eval groups?
-        List<EvalGroup> evalGroups = commonLogic.getEvalGroupsForUser(userId, EvalConstants.PERM_BE_EVALUATED);
-        String[] evalGroupIds = new String[evalGroups.size()];
-        int i = 0;
-        for (EvalGroup evalGroup : evalGroups) {
-            evalGroupIds[i++] = evalGroup.evalGroupId;
+//        List<EvalGroup> evalGroups = commonLogic.getEvalGroupsForUser(userId, EvalConstants.PERM_BE_EVALUATED);
+//        String[] evalGroupIds = new String[evalGroups.size()];
+//        int i = 0;
+//        for (EvalGroup evalGroup : evalGroups) {
+//            evalGroupIds[i++] = evalGroup.evalGroupId;
+//        }
+
+        // ZCII-2928 : TODO in the mean time we will use the method:
+        String[] evalGroupIds = getGroupIdsForUserEvaluatee(userId);
+        List<EvalGroup> evalGroups = new ArrayList<EvalGroup>();
+        EvalGroup evalGroup;
+        if (evalGroupIds != null) {
+            for(String evalGroupId: evalGroupIds){
+                evalGroup = new EvalGroup();
+                evalGroups.add( externalLogic.makeEvalGroupObject(evalGroupId) );
+            }
         }
+
         List<EvalEvaluation> evals = dao.getEvaluationsByEvalGroups(evalGroupIds, null, null, null, 0, 0);
         // date calculations for recently closed
         Date today = new Date();
@@ -834,6 +846,29 @@ public class EvalEvaluationSetupServiceImpl implements EvalEvaluationSetupServic
         populateEvaluationsGroups(evals, evalGroups);
         return evals;
     }
+
+    /**
+     * ZCII-2928
+     * Method which retrieves the groupIds for all groups in which this user has
+     * an assignment of type evaluator
+     * @param userId the userId of the user (must not be null)
+     * @return the array of all groupIds OR null if the user has permission in none
+     */
+    private String[] getGroupIdsForUserEvaluatee(String userId) {
+        String[] evalGroupIds = null;
+        List<EvalAssignUser> userAssignments;
+
+        userAssignments = evaluationService.getParticipantsForEval(null, userId, null,
+                    EvalAssignUser.TYPE_EVALUATEE, null, null, null);
+
+
+        Set<String> egidSet = EvalUtils.getGroupIdsFromUserAssignments(userAssignments);
+        if (!egidSet.isEmpty()) {
+            // create array of all assigned groupIds where this user is instructor
+            evalGroupIds = egidSet.toArray(new String[egidSet.size()]);
+        }
+        return evalGroupIds;
+    }    
 
 	/**
 	 * Special method to populate the assign groups and eval groups non-persistent fields in the evaluation objects
