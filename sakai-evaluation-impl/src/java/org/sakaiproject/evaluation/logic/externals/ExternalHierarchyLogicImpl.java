@@ -169,6 +169,7 @@ public class ExternalHierarchyLogicImpl implements ExternalHierarchyLogic {
                 // ZCII-3227
                 String sectionId = evalGroupID.substring( evalGroupID.indexOf( EvalConstants.GROUP_ID_SECTION_PREFIX )
                         + EvalConstants.GROUP_ID_SECTION_PREFIX.length()  );
+		//ZCII-PERSO - ZCII-3227: For an evaluation section-aware, remove DF sections and 00 sections
                 if (sectionId != null &&
                         !sectionId.substring(sectionId.length() - 2).equals("00") &&
                         !sectionId.substring(sectionId.length() - 3).startsWith("DF")) {
