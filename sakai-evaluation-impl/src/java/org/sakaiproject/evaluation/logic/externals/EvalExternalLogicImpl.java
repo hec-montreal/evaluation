@@ -871,10 +871,27 @@ public class EvalExternalLogicImpl implements EvalExternalLogic {
         {
             try
             {
-                // Get all roles for the site
+		//ZCII-PERSO - ZCII-3203: make hierarchy node selection section aware
+		//ZCII-PERSO - Check user permission in the group not in the site
+                // Get all roles for the section
                 Site site = siteService.getSite( groupID.getSiteID() );
-                Set<Role> siteRoles = site.getRoles();
+                Group selectedGroup = null;
+                for (Group group: site.getGroups()){
+                    if (group.getProviderGroupId() != null && group.getProviderGroupId().equalsIgnoreCase(groupID.sectionID)){
+                        selectedGroup = group;
+                        break;
+                    }
+
+                }
+
+                if (selectedGroup == null) {
+                    throw new IdNotFoundException("No group with given provider id in site");
+                }
+
+                Set<Role> siteRoles = selectedGroup.getRoles();
                 List<String> siteRolesWithPerm = new ArrayList<>( siteRoles.size() );
+
+                //End ZCII-PERSO - ZCII-3203
 
                 // Determine which roles have the given permission
                 for( Role role : siteRoles )
