@@ -19,10 +19,14 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
 
+import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.evaluation.logic.EvalSettings;
 import org.sakaiproject.evaluation.logic.model.EvalGroup;
 import org.sakaiproject.evaluation.model.EvalEvaluation;
 import org.sakaiproject.evaluation.utils.EvalUtils;
+import org.sakaiproject.exception.IdUnusedException;
+import org.sakaiproject.site.api.Site;
+import org.sakaiproject.site.cover.SiteService;
 
 import uk.org.ponder.messageutil.MessageLocator;
 import uk.org.ponder.rsf.components.UIContainer;
@@ -84,8 +88,31 @@ public class HumanDateRenderer {
         }
         String groupTitle = "";
         String groupType = "";
+        String siteid = "";
+        Site site;
+        ResourceProperties properties;
+
         if (group != null) {
-            groupTitle = group.title;
+	// ZCII-PERSO : from ZCII-2386 & ZCII-2959 
+	// Use the title of the site in its properties
+	// Used in the evaluation dashboard of the student, instructor and admin 
+	try {
+
+		if ((null == groupTitle || groupTitle.equals((""))) && (group.evalGroupId.contains("/section/"))) {
+			siteid = group.evalGroupId.substring(6, group.evalGroupId.indexOf("/section/"));
+		} else {
+			siteid = group.evalGroupId.substring(group.evalGroupId.lastIndexOf('/')+1);
+		}
+		site = SiteService.getSite(siteid);
+		properties = site.getProperties();
+		groupTitle = properties.getProperty("title");
+
+	} catch (IdUnusedException e) {
+		// We'll use the group title rather than find it in the site properties. 
+		groupTitle = group.title;
+	}
+	// End ZCII-PERSO 
+
             groupType = group.type;
         }
         String title = messageLocator.getMessage("eval.display.title", new Object[] {evalTitle, groupTitle, evalState, evalTerm, groupType}) + " ";

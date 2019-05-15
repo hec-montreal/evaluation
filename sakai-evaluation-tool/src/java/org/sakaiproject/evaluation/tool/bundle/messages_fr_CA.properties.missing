@@ -1,0 +1,34 @@
+Missing fr_CA translations
+
+administrate.general.enable.site.published.check=Enable Site (group) publish check - NOTE: this will break all other group types (UM)
+administrate.general.allow.required.textitem=Students must answer text items that are required
+administrate.enable.reminder.status=Enable the job status while reminders are running.
+administrate.search.submit.title.group=Search Group Titles
+administrate.search.results.max=Too many sites were found and results have been limited to {0} sites.
+chownevaluation.page.title=Change Survey Owner
+chownevaluation.nochown.text=This survey ({0}) cannot be changed because it is currently being used.
+chownevaluation.confirm.text=Are you sure you want to change the owner of the survey "{0}"?
+chownevaluation.chown.text=Please enter the username or email of the new owner of the evaluation
+chownevaluation.chown.label=New Owner
+chownevaluation.chown.button=Save
+controlevaluations.partial.owner.header=Owner
+controlevaluations.chown.permission.message=User {1} does not have permissions to be the owner of a survey
+controlevaluations.chown.user.message=Your survey ({0}) is now owned by {1}
+controlevaluations.eval.owner.header=Owner
+controlevaluations.eval.report.not.permissions=You do not have permissions to view this report
+evalsettings.view.results.students.date.after.label=Results viewable for students after this date
+evalsettings.view.results.instructors.date.after.label=Results viewable for instructors after this date
+evalsettings.text.items.compulsory.note=Students must answer all compulsory free text/essay questions
+evalsettings.compulsoryTextItemsAllowed.label=If compulsory text question exist, they must be answered
+evalsettings.compulsoryTextItemsAllowed.disabled=If compulsory text question exist, they must be answered
+evalsettings.submission.mail.link=(View/Edit the confirmation email?)
+evalsettings.submission.mail.desc=A confirmation email will be sent out to students when they submit the evaluation. 
+removeitem.block.text=Grouped child items will be split out and placed into the template in the same location as group occupied and in the same order
+controlemail.title=Control Email Notification
+controlemailtemplate.template.error.save.message=Something in the template ({0}) was incorrectly formatted so the template was not saved. Please re-check your template and try again.
+modifyemail.save.changes.link=Save Changes
+permission.message=Set permissions for Evaluation System in site 
+
+Missing from new version, present in old fr_CA
+
+takeeval.switch.group.button = Changer:

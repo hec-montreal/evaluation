@@ -166,8 +166,16 @@ public class ExternalHierarchyLogicImpl implements ExternalHierarchyLogic {
             // If the evalGroup is pointing to a single section, get the single session, add it to the list and return
             if( isSingleSection )
             {
-                sections.add( courseManagementService.getSection( evalGroupID.substring( evalGroupID.indexOf( EvalConstants.GROUP_ID_SECTION_PREFIX ) 
-                                                                                         + EvalConstants.GROUP_ID_SECTION_PREFIX.length() ) ) );
+                // ZCII-3227
+                String sectionId = evalGroupID.substring( evalGroupID.indexOf( EvalConstants.GROUP_ID_SECTION_PREFIX )
+                        + EvalConstants.GROUP_ID_SECTION_PREFIX.length()  );
+		//ZCII-PERSO - ZCII-3227: For an evaluation section-aware, remove DF sections and 00 sections
+                if (sectionId != null &&
+                        !sectionId.substring(sectionId.length() - 2).equals("00") &&
+                        !sectionId.substring(sectionId.length() - 3).startsWith("DF")) {
+                    sections.add(courseManagementService.getSection(sectionId));
+                }
+                // end ZCII-3227
             }
 
             // Otherwise, the evalGroup is pointing at a site...
@@ -178,7 +186,13 @@ public class ExternalHierarchyLogicImpl implements ExternalHierarchyLogic {
                 Set<String> sectionIDs = authzGroupService.getProviderIds( realmID );
                 for( String secID : sectionIDs )
                 {
-                    sections.add( courseManagementService.getSection( secID ) );
+                    //ZCII-3227
+                    if (secID != null &&
+                            !secID.substring(secID.length() - 2).equals("00") &&
+                            !secID.substring(secID.length() - 3).startsWith("DF")) {
+                        sections.add(courseManagementService.getSection(secID));
+                    }
+                    //end ZCII-3227
                 }
             }
         }
@@ -641,11 +655,19 @@ public class ExternalHierarchyLogicImpl implements ExternalHierarchyLogic {
 
                     for( String sectionID : realmSectionIDs.get( realmID ) )
                     {
-                        Section section = courseManagementService.getSection( sectionID );
-                        if( siteOrSectionTitleSatisfiesRule( section.getTitle(), qualifier, rawRuleText ) )
-                        {
-                            nodeID = rule.getNodeID().toString();
+                        // ZCII-3227
+                        if (sectionID != null &&
+                                !sectionID.substring(sectionID.length() - 2).equals("00") &&
+                                !sectionID.substring(sectionID.length() - 3).startsWith("DF")) {
+                            Section section = courseManagementService.getSection(sectionID);
+                            String courseOfferingTitle = courseManagementService.getCourseOffering(section.getCourseOfferingEid()).getTitle();
+                            if (siteOrSectionTitleSatisfiesRule(section.getTitle(), qualifier, rawRuleText))
+                            //if( siteOrSectionTitleSatisfiesRule( courseOfferingTitle + " - " + section.getTitle(), qualifier, rawRuleText ) )
+                            {
+                                nodeID = rule.getNodeID().toString();
+                            }
                         }
+                        //end ZCII-3227
                     }
                 }
 
