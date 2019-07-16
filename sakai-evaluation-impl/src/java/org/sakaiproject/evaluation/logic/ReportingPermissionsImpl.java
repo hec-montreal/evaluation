@@ -270,9 +270,7 @@ public class ReportingPermissionsImpl implements ReportingPermissions {
         if ( typeToEvalGroupId.containsKey(EvalAssignUser.TYPE_EVALUATEE) ) {
             Boolean instructorAllowedViewResults = (Boolean) evalSettings.get(EvalSettings.INSTRUCTOR_ALLOWED_VIEW_RESULTS);
             if (instructorAllowedViewResults == null || instructorAllowedViewResults) {
-                boolean instructorViewResults = eval.getInstructorViewResults();
-                boolean instructorViewAllResults = eval.getInstructorViewAllResults();
-                if ((instructorViewResults && (userId.equals(eval.getOwner()) || isUserAdmin)) || instructorViewAllResults) {
+                if (eval.getInstructorViewResults()) {
                     Date checkDate = eval.getInstructorsDate();
                     if ( (checkDate == null && EvalUtils.checkStateAfter(eval.getState(), EvalConstants.EVALUATION_STATE_VIEWABLE, true))
                             || (checkDate != null && (new Date()).after(checkDate)) 
