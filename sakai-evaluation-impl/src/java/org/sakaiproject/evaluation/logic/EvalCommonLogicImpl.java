@@ -408,8 +408,8 @@ public class EvalCommonLogicImpl implements EvalCommonLogic {
 	// Used in Evaluation Assignment page
 	String siteId;
 
-	if (evalGroupId.contains("/section/"))
-		siteId = evalGroupId.substring(6, evalGroupId.indexOf("/section/")) + " - ";
+	if (evalGroupId.contains("/section/") || evalGroupId.contains("/group/"))
+		siteId = evalGroupId.substring(6, evalGroupId.indexOf("/", 6)) + " - ";
 	else
 		siteId = "";
 
