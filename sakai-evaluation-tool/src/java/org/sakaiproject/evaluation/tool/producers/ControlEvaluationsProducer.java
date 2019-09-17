@@ -360,6 +360,7 @@ public class ControlEvaluationsProducer extends EvalCommonProducer implements Vi
             String responseString = EvalUtils.makeResponseRateStringFromCounts(responsesCount, enrollmentsCount);
 
             boolean allowedViewResponders = false;
+            /* ZCII-3865 : just leave it false because its slow
             List<EvalGroup> allowedGroups = commonLogic.getEvalGroupsForUser(currentUserId, EvalConstants.PERM_VIEW_RESPONDERS);
             List<String> allowedGroupIds = new ArrayList<>();
             for (EvalGroup allowedGroup : allowedGroups) {
@@ -371,6 +372,7 @@ public class ControlEvaluationsProducer extends EvalCommonProducer implements Vi
                     break;
                 }
             }
+            */
 
             boolean allowedEmailStudents = true;
             if(userReadonlyAdmin && !currentUserId.equals(evaluation.getOwner())) {
@@ -502,6 +504,7 @@ public class ControlEvaluationsProducer extends EvalCommonProducer implements Vi
 
 
             boolean allowedViewResponders = false;
+            /* ZCII-3865 : just leave it false because its slow
             List<EvalGroup> allowedGroups = commonLogic.getEvalGroupsForUser(currentUserId, EvalConstants.PERM_VIEW_RESPONDERS);
             List<String> allowedGroupIds = new ArrayList<>();
             for (EvalGroup allowedGroup : allowedGroups) {
@@ -513,6 +516,7 @@ public class ControlEvaluationsProducer extends EvalCommonProducer implements Vi
                     break;
                 }
             }
+            */
 
             boolean allowedEmailStudents = true;
             if(userReadonlyAdmin && !currentUserId.equals(evaluation.getOwner())) {
