@@ -299,6 +299,10 @@ public class HierarchyTreeNodeSelectRenderer {
             	boolean disabled = false;
             	if(evalHierNode.parentNodeIds != null){
 					for(String parentId : evalHierNode.parentNodeIds){
+						// Somehow some nodes have their own id in parentNodeIds here, don't disable them or add the class
+						if (parentId.equals(evalHierNode.id)) {
+							continue;
+						}
 						checkbox.decorate(new UIStyleDecorator("parentNode" + parentId));
 						//see if any parents are selected, if so, then disable the checkbox
 						if(!disabled && evalViewParams.selectedHierarchyNodeIDs != null){
