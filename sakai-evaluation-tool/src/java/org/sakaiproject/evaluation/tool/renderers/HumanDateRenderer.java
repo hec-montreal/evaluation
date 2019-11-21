@@ -98,8 +98,8 @@ public class HumanDateRenderer {
 	// Used in the evaluation dashboard of the student, instructor and admin 
 	try {
 
-		if ((null == groupTitle || groupTitle.equals((""))) && (group.evalGroupId.contains("/section/"))) {
-			siteid = group.evalGroupId.substring(6, group.evalGroupId.indexOf("/section/"));
+		if ((null == groupTitle || groupTitle.equals((""))) && (group.evalGroupId.contains("/section/") || group.evalGroupId.contains("/group/"))) {
+			siteid = group.evalGroupId.substring(6, group.evalGroupId.indexOf("/", 6));
 		} else {
 			siteid = group.evalGroupId.substring(group.evalGroupId.lastIndexOf('/')+1);
 		}
