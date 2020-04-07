@@ -38,11 +38,11 @@
     <parent>
         <groupId>org.sakaiproject</groupId>
         <artifactId>master</artifactId>
-        <version>19.4</version>
+        <version>19.3</version>
     </parent>
 
     <properties>
-        <hierarchy.version>19.4</hierarchy.version>
+        <hierarchy.version>19.3</hierarchy.version>
         <evalsys.pom.basedir>${project.basedir}</evalsys.pom.basedir>
         <evalsys.project.name>${project.name}</evalsys.project.name>
         <evalsys.project.year>${project.inceptionYear}</evalsys.project.year>
